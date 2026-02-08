@@ -4,15 +4,15 @@ export enum UserRole {
     STAKEHOLDER = 'STAKEHOLDER',
 }
 
-export interface CreateUserDto extends Record<string, unknown> {
+export interface CreateUserDto {
     email: string;
     password: string;
     first_name: string;
     last_name: string;
-    constituency?: string;
-    sub_constituency?: string;
     role?: UserRole;
 }
+
+export type UpdateUserDto = Partial<Omit<CreateUserDto, 'password'>>;
 
 export interface UserResponseDto {
     id: string;
@@ -21,7 +21,5 @@ export interface UserResponseDto {
     last_name: string;
     role: UserRole;
     is_active: boolean;
-    constituency?: string;
-    sub_constituency?: string;
     created_at: Date;
 }

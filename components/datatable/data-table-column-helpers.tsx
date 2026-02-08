@@ -334,3 +334,44 @@ export function createAvatarColumn<TData>(
         },
     };
 }
+
+/**
+ * Creates a status badge column
+ */
+export function createStatusColumn<TData>(
+    id: keyof TData | string,
+    header: string,
+    accessorFn?: (row: TData) => string,
+): ColumnDef<TData> {
+    return {
+        accessorKey: accessorFn ? undefined : (id as string),
+        accessorFn,
+        id: id as string,
+        header: ({ column }) => <SimpleColumnHeader column={column} title={header} />,
+        cell: ({ row }) => {
+            const value = accessorFn
+                ? accessorFn(row.original)
+                : (row.getValue(id as string) as string);
+
+            if (!value) return <div>-</div>;
+
+            let colorClass = "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
+
+            const normalizedValue = value.toLowerCase();
+
+            if (normalizedValue === "active" || normalizedValue === "published" || normalizedValue === "completed") {
+                colorClass = "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
+            } else if (normalizedValue === "inactive" || normalizedValue === "archived" || normalizedValue === "cancelled") {
+                colorClass = "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
+            } else if (normalizedValue === "pending" || normalizedValue === "planned" || normalizedValue === "draft") {
+                colorClass = "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
+            }
+
+            return (
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}`}>
+                    {value}
+                </span>
+            );
+        },
+    };
+}

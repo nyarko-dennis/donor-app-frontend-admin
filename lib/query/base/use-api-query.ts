@@ -108,7 +108,7 @@ export function useApiQuery<
                     method: "GET",
                     params,
                     withCredentials: true,
-                    token
+                    token: token || accessToken
                 });
             } catch (error) {
                 if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {

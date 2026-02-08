@@ -138,7 +138,7 @@ export function useApiMutation<
         const requestOptions: RequestOptions = {
             url: resolvedUrl,
             method,
-            token,
+            token: token || session?.accessToken,
         };
         if (computedBody !== undefined) {
             requestOptions.data = computedBody as unknown;

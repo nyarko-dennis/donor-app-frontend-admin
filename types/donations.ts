@@ -13,7 +13,16 @@ export interface DonationResponseDto {
     currency: string;
     payment_method: string;
     donation_cause: string;
-    donor_id: string;
-    campaign_id: string;
+    donor: {
+        id: string;
+        first_name: string;
+        last_name: string;
+        email: string;
+    },
+    campaign: {
+        id: string;
+        name: string;
+        status: string;
+    },
     created_at: Date;
 }
