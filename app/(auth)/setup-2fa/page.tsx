@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/input-otp"
 import { toast } from "sonner"
 import { Label } from "@/components/ui/label"
+import { Spinner } from "@/components/ui/spinner"
 
 export default function Setup2faPage() {
     const { data: session, status } = useSession()
@@ -75,7 +76,7 @@ export default function Setup2faPage() {
         return (
             <AuthPageWrapper title="Setup 2FA" description="Loading...">
                 <div className="flex justify-center p-8">
-                    <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+                    <Spinner className="h-8 w-8" />
                 </div>
             </AuthPageWrapper>
         )
@@ -109,6 +110,7 @@ export default function Setup2faPage() {
                 </div>
 
                 <Button onClick={onEnable} className="w-full" disabled={isLoading || code.length < 6}>
+                    {isLoading && <Spinner className="mr-2" />}
                     {isLoading ? "Enabling..." : "Enable 2FA"}
                 </Button>
 

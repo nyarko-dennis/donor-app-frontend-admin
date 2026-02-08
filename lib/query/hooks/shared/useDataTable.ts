@@ -1,21 +1,9 @@
-"use client";
+import { useState, useMemo } from 'react';
+import { PaginationParams, PaginationResponse } from "@/types/pagination";
+import { useAccessToken } from "@/hooks/useAccessToken";
 
-import * as React from "react";
-import { PaginationState, SortingState } from "@tanstack/react-table";
-import { PaginationParams, Order, PageDto } from "@/types/pagination";
-
-interface UseDataTableOptions<TData, TParams extends PaginationParams> {
-    sort?: string[]; // e.g. ["field,ASC"] - adapted from backend logic if needed, or just allow params override
-    search?: string;
-    [key: string]: unknown;
-}
-
-interface UseDataTableResult<TData> {
-    tableData: TData[];
-    totalElements: number;
-    pageCount: number;
-    pagination: PaginationState;
-    setPagination: React.Dispatch<React.SetStateAction<PaginationState>>;
+interface QueryResult<TData> {
+    data?: PaginationResponse<TData>;
     isLoading: boolean;
     isFetching: boolean;
     error: Error | null;
@@ -23,89 +11,69 @@ interface UseDataTableResult<TData> {
 }
 
 export function useDataTable<TData, TParams extends PaginationParams = PaginationParams>(
-    useQueryHook: (params: TParams) => {
-        data: PageDto<TData> | undefined;
-        isLoading: boolean;
-        isFetching: boolean;
-        error: Error | null;
-        refetch: () => void;
-    },
+    useQueryHook: (params: TParams) => QueryResult<TData>,
     initialParams: TParams,
-    extraParams?: Partial<TParams> & { sort?: string[] } // Handling the sort specifically if needed
-): UseDataTableResult<TData> {
-
-    // -- Pagination State --
-    // We initialize from initialParams or default to page=0 (frontend index), take=10
-    const initialPageIndex = (initialParams.page && initialParams.page > 0) ? initialParams.page - 1 : 0;
-    const initialPageSize = initialParams.take || 10;
-
-    const [pagination, setPagination] = React.useState<PaginationState>({
-        pageIndex: initialPageIndex,
-        pageSize: initialPageSize,
+    extraParams?: Partial<TParams>
+) {
+    const { status } = useAccessToken();
+    const loadingToken = status === "loading";
+    // Align local pagination state with app PaginationParams (page, pageSize)
+    const [pagination, setPagination] = useState({
+        // Convert 1-based page from backend to 0-based pageIndex for the table UI
+        pageIndex: Math.max(0, ((initialParams.page as number | undefined) ?? 1) - 1),
+        pageSize: (initialParams as PaginationParams).take || (initialParams as any).pageSize || 10,
     });
 
-    // -- Construct Query Params --
-    // Map frontend pagination (0-based) to backend (1-based)
-    // Merge with initialParams and extraParams
-    const queryParams: TParams = React.useMemo(() => {
+    // Memoize query parameters to prevent unnecessary re-renders
+    const queryParams = useMemo(() => ({
+        ...initialParams,
+        ...(extraParams as object),
+        // Convert UI's 0-based pageIndex to backend's 1-based "page"
+        page: pagination.pageIndex + 1,
+        // Support widely used "pageSize" or "take"
+        pageSize: Math.max(1, pagination.pageSize),
+        take: Math.max(1, pagination.pageSize),
+    }), [initialParams, extraParams, pagination.pageIndex, pagination.pageSize]);
 
-        // Base params
-        const params = {
-            ...initialParams,
-            ...extraParams,
-            page: pagination.pageIndex + 1,
-            take: pagination.pageSize,
-        } as TParams;
+    // Use the provided query hook
+    const queryResult = useQueryHook(queryParams as TParams);
 
-        // Handle Sorting Map
-        // The generic table passes `sort` as an array of strings like ["created_at,desc"] or similar
-        // The backend `PageOptionsDto` expects a single `order` field: Order.ASC | Order.DESC
-        // AND presumably it needs to know which field to sort by. 
-        // FROWNING: Backend `PageOptionsDto` only has `order: Order`. It DOES NOT seem to have a `sortBy` field.
-        // CHECK: Does `PageOptionsDto` allow sorting by specific fields?
-        // The definition I saw: `readonly order: Order = Order.ASC;`
-        // It implies there might be a default sort field or it's handled elsewhere.
-        // IF the backend only supports simple "ASC/DESC" on a default field, we map to that.
-        // IF the backend supports filtering/sorting by fields via other params, we pass them through.
+    // Extract data safely
+    const tableData = useMemo(() => {
+        if (!queryResult.data) return [] as TData[];
+        // Support shapes:
+        // 1) PaginationResponse<T>: { data, total, page, pageSize }
+        // 2) Spring-like Page<T>: { content, totalElements, ... }
+        // 3) NestJS PageDto<T>: { data, meta: { itemCount, ... } }
+        const anyData = queryResult.data as unknown as {
+            data?: TData[];
+            content?: TData[];
+        };
+        return (anyData.data ?? anyData.content ?? []) as TData[];
+    }, [queryResult.data]);
 
-        // For now, if the hook receives a 'sort' array from the table, we might need to extract the direction
-        // to map to `order`. 
-        // Example: sort: ["createdAt,desc"] -> order: Order.DESC
-        if (extraParams?.sort && extraParams.sort.length > 0) {
-            const sortString = extraParams.sort[0]; // Take first sort
-            if (sortString.toLowerCase().includes('desc')) {
-                params.order = Order.DESC;
-            } else {
-                params.order = Order.ASC;
-            }
-        }
-
-        return params;
-    }, [pagination.pageIndex, pagination.pageSize, initialParams, extraParams]);
-
-    // -- Data Fetching --
-    const {
-        data,
-        isLoading,
-        isFetching,
-        error,
-        refetch
-    } = useQueryHook(queryParams);
-
-    // -- Derived State --
-    const tableData = React.useMemo(() => data?.data || [], [data]);
-    const totalElements = data?.meta?.itemCount || 0;
-    const pageCount = data?.meta?.pageCount || 0;
+    // Calculate total pages safely
+    const totalElements = useMemo(() => {
+        if (!queryResult.data) return 0;
+        const anyData = queryResult.data as unknown as {
+            total?: number;
+            totalElements?: number;
+            meta?: { itemCount: number };
+        };
+        return (anyData.total ?? anyData.totalElements ?? anyData.meta?.itemCount ?? 0) as number;
+    }, [queryResult.data]);
 
     return {
-        tableData,
-        totalElements,
-        pageCount,
         pagination,
         setPagination,
-        isLoading,
-        isFetching,
-        error,
-        refetch,
+        queryParams,
+        queryResult,
+        tableData,
+        totalElements,
+        // Consider loading if either the access token or the query is loading
+        isLoading: Boolean(loadingToken || queryResult.isLoading),
+        isFetching: queryResult.isFetching,
+        error: queryResult.error,
+        refetch: queryResult.refetch
     };
 }

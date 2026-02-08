@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import Link from "next/link"
+import { Spinner } from "@/components/ui/spinner"
 
 const forgotPasswordSchema = z.object({
     email: z.string().email("Please enter a valid email"),
@@ -80,6 +81,7 @@ export default function ForgotPasswordPage() {
                         )}
                     </div>
                     <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading && <Spinner className="mr-2" />}
                         {isLoading ? "Sending..." : "Send Reset Link"}
                     </Button>
                     <Button variant="ghost" asChild className="w-full">

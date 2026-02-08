@@ -67,10 +67,10 @@ export function DataTable<TData, TParams extends PaginationParams = PaginationPa
         if (!manualFiltering || columnFilters.length === 0) return undefined;
 
         const params: Record<string, string> = {};
-        columnFilters.forEach(filter => {
+        columnFilters.forEach((filter) => {
             // TanStack filters are usually arrays when using multi-select/faceted filters
             const value = Array.isArray(filter.value)
-                ? filter.value.map(v => String(v)).join(',') // e.g., ['Admin', 'Viewer'] -> 'Admin,Viewer'
+                ? (filter.value as string[]).map((v) => String(v)).join(',') // e.g., ['Admin', 'Viewer'] -> 'Admin,Viewer'
                 : String(filter.value);
 
             // Use the column ID as the filter key

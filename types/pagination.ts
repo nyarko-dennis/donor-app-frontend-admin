@@ -24,3 +24,17 @@ export interface PageDto<T> {
     data: T[];
     meta: PageMetaDto;
 }
+
+// Alias for compatibility with user's hook pattern
+export type PaginationResponse<T> = PageDto<T> | {
+    data: T[];
+    total: number;
+    page: number;
+    pageSize: number;
+} | {
+    content: T[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+};

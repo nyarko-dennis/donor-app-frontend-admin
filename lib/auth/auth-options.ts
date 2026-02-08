@@ -22,7 +22,6 @@ export const authOptions: NextAuthOptions = {
                     const response = await axios.post(`${backendUrl}/auth/login`, {
                         email: credentials.email,
                         password: credentials.password,
-                        code: credentials.code, // Pass 2FA code if provided
                     });
 
                     // Check for 2FA requirement
@@ -33,25 +32,46 @@ export const authOptions: NextAuthOptions = {
                         throw new Error("2FA_REQUIRED");
                     }
 
-                    const user = response.data;
+                    const data = response.data;
 
-                    if (user && user.accessToken) {
-                        // Return user object with token
-                        return {
-                            id: user.userData.id,
-                            name: `${user.userData.first_name} ${user.userData.last_name}`,
-                            email: user.userData.email,
-                            role: user.userData.role,
-                            accessToken: user.accessToken,
-                        };
+                    if (data && data.access_token) {
+                        try {
+                            // Fetch user profile
+                            const profileResponse = await axios.get(`${backendUrl}/auth/profile`, {
+                                headers: {
+                                    Authorization: `Bearer ${data.access_token}`,
+                                },
+                            });
+
+                            const profile = profileResponse.data;
+
+                            if (profile) {
+                                return {
+                                    id: profile.id,
+                                    name: `${profile.first_name} ${profile.last_name}`,
+                                    email: profile.email,
+                                    role: profile.role,
+                                    accessToken: data.access_token,
+                                };
+                            }
+                        } catch (profileError) {
+                            console.error("Failed to fetch user profile:", profileError);
+                            return null;
+                        }
                     }
 
                     return null;
-                } catch (error: any) {
-                    if (error.message === "2FA_REQUIRED") {
+                } catch (error) {
+                    if (error instanceof Error && error.message === "2FA_REQUIRED") {
                         throw error;
                     }
-                    console.error("Login failed:", error.response?.data || error.message);
+                    if (axios.isAxiosError(error)) {
+                        console.error("Login failed:", error.response?.data || error.message);
+                    } else if (error instanceof Error) {
+                        console.error("Login failed:", error.message);
+                    } else {
+                        console.error("Login failed: Unknown error");
+                    }
                     return null;
                 }
             },

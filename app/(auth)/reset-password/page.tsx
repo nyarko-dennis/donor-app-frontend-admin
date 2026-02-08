@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
+import { Spinner } from "@/components/ui/spinner"
 
 const resetPasswordSchema = z.object({
     password: z.string().min(8, "Password must be at least 8 characters"),
@@ -113,6 +114,7 @@ export default function ResetPasswordPage() {
                             )}
                         </div>
                         <Button type="submit" className="w-full" disabled={isLoading}>
+                            {isLoading && <Spinner className="mr-2" />}
                             {isLoading ? "Resetting..." : "Reset Password"}
                         </Button>
                     </div>

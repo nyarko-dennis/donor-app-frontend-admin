@@ -18,11 +18,19 @@ export default withAuth(
 
 export const config = {
     matcher: [
-        "/dashboard/:path*",
-        "/settings/:path*",
-        "/users/:path*",
-        "/donations/:path*",
-        "/campaigns/:path*",
-        // Add other protected routes here
+        /*
+         * Match all request paths except for the ones starting with:
+         * - api (API routes)
+         * - _next/static (static files)
+         * - _next/image (image optimization files)
+         * - favicon.ico (favicon file)
+         * - login
+         * - forgot-password
+         * - reset-password
+         * - setup-2fa
+         * - images in public public
+         */
+        "/dashboard/constituencies",
+        "/((?!api|_next/static|_next/image|favicon.ico|login|forgot-password|reset-password|setup-2fa|images).*)",
     ],
 };

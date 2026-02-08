@@ -8,7 +8,8 @@ import { notifySessionExpiredOnce, triggerSignOutOnce } from "@/lib/auth/logout-
 
 
 // Base type for mutation variables - most mutations send some data
-type MutationVariables = Record<string, unknown> | FormData | string | number | boolean | null | { [key: string]: unknown };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type MutationVariables = any; // simplified to allow interfaces without index signatures
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface StaticUrlOption<TVars = unknown> {
@@ -49,7 +50,7 @@ type UseApiMutationOptions<TData, TError, TVariables extends MutationVariables, 
         /**
          * The HTTP method for the API call.
          */
-        method: 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+        method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
         /**
          * An optional array of React Query keys to invalidate after the mutation
          * is successful. This triggers refetches for related queries.
@@ -130,7 +131,7 @@ export function useApiMutation<
 
         type RequestOptions = {
             url: string;
-            method: 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+            method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
             token?: string;
             data?: unknown;
         };

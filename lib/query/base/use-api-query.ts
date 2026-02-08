@@ -6,7 +6,8 @@ import { toast } from "sonner";
 import { notifySessionExpiredOnce, triggerSignOutOnce } from "@/lib/auth/logout-guard";
 
 // Type for query key - can be string or array of primitives
-type QueryKey = string | readonly (string | number | boolean | null | undefined)[];
+// Type for query key - can be string or array of primitives or objects
+type QueryKey = string | readonly unknown[];
 type Primitive = string | number | boolean;
 type QueryParamValue = Primitive | Primitive[] | undefined;
 

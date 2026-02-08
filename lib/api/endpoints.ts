@@ -22,7 +22,9 @@ export const API_ENDPOINTS = {
         forgotPassword: `${API_BASE_URL}/auth/forgot-password`,
         resetPassword: `${API_BASE_URL}/auth/reset-password`,
         profile: `${API_BASE_URL}/auth/profile`,
-        changePassword: `${API_BASE_URL}/auth/change-password`, // Request body: { "currentPassword": "OldPassword123!", "newPassword": "NewSecurePassword123!" }
+        changePassword: `${API_BASE_URL}/auth/change-password`,
+        generate2FA: `${API_BASE_URL}/auth/2fa/generate`,
+        turnOn2FA: `${API_BASE_URL}/auth/2fa/turn-on`,
     },
 
     users: {
@@ -31,6 +33,49 @@ export const API_ENDPOINTS = {
         createUser: `${API_BASE_URL}/users`,
         updateUser: (id: string) => `${API_BASE_URL}/users/${id}`,
         deleteUser: (id: string) => `${API_BASE_URL}/users/${id}`,
+    },
+
+    campaigns: {
+        getCampaigns: `${API_BASE_URL}/campaigns`,
+        getCampaignById: (id: string) => `${API_BASE_URL}/campaigns/${id}`,
+        createCampaign: `${API_BASE_URL}/campaigns`,
+        updateCampaign: (id: string) => `${API_BASE_URL}/campaigns/${id}`, // Assumed, though not explicitly in controller, good to have standard
+        deleteCampaign: (id: string) => `${API_BASE_URL}/campaigns/${id}`,
+    },
+
+    donors: {
+        getDonors: `${API_BASE_URL}/donors`,
+        getDonorById: (id: string) => `${API_BASE_URL}/donors/${id}`,
+        createDonor: `${API_BASE_URL}/donors`,
+        updateDonor: (id: string) => `${API_BASE_URL}/donors/${id}`, // Assumed
+        deleteDonor: (id: string) => `${API_BASE_URL}/donors/${id}`,
+    },
+
+    donations: {
+        getDonations: `${API_BASE_URL}/donations`,
+        getDonationById: (id: string) => `${API_BASE_URL}/donations/${id}`,
+        createDonation: `${API_BASE_URL}/donations`,
+        updateDonation: (id: string) => `${API_BASE_URL}/donations/${id}`, // Assumed
+        deleteDonation: (id: string) => `${API_BASE_URL}/donations/${id}`,
+    },
+
+    donationCauses: {
+        getDonationCauses: `${API_BASE_URL}/donation-causes`,
+        getDonationCauseById: (id: string) => `${API_BASE_URL}/donation-causes/${id}`,
+        createDonationCause: `${API_BASE_URL}/donation-causes`,
+        updateDonationCause: (id: string) => `${API_BASE_URL}/donation-causes/${id}`,
+        deleteDonationCause: (id: string) => `${API_BASE_URL}/donation-causes/${id}`,
+    },
+
+    constituencies: {
+        getConstituencies: `${API_BASE_URL}/constituencies`,
+        getConstituencyById: (id: string) => `${API_BASE_URL}/constituencies/${id}`,
+        createConstituency: `${API_BASE_URL}/constituencies`,
+        updateConstituency: (id: string) => `${API_BASE_URL}/constituencies/${id}`,
+        deleteConstituency: (id: string) => `${API_BASE_URL}/constituencies/${id}`,
+        createSubConstituency: (id: string) => `${API_BASE_URL}/constituencies/${id}/sub-constituencies`,
+        updateSubConstituency: (id: string) => `${API_BASE_URL}/constituencies/sub-constituencies/${id}`,
+        deleteSubConstituency: (id: string) => `${API_BASE_URL}/constituencies/sub-constituencies/${id}`,
     },
 
 };
