@@ -19,6 +19,11 @@ export interface SubConstituencyResponseDto {
     description?: string;
     order?: number;
     constituency_id: string;
+    constituency: {
+        id: string;
+        name: string;
+        created_at: Date;
+    };
     created_at: Date;
 }
 

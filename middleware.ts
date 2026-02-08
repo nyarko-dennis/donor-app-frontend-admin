@@ -31,6 +31,7 @@ export const config = {
          * - images in public public
          */
         "/dashboard/constituencies",
+        "/dashboard/sub-constituencies",
         "/((?!api|_next/static|_next/image|favicon.ico|login|forgot-password|reset-password|setup-2fa|images).*)",
     ],
 };

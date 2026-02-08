@@ -51,6 +51,11 @@ const data = {
       icon: IconListDetails,
     },
     {
+      title: "Sub-Constituencies",
+      url: "/dashboard/sub-constituencies",
+      icon: IconListDetails,
+    },
+    {
       title: "Lifecycle",
       url: "#",
       icon: IconListDetails,

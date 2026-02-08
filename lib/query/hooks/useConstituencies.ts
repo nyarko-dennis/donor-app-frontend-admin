@@ -4,11 +4,12 @@ import { queryKeys } from "@/lib/query/utils/queryKeys";
 import { ConstituencyResponseDto } from "@/types/constituencies";
 import { PageDto, PaginationParams } from "@/types/pagination";
 
-export const useConstituencies = (params?: PaginationParams) => {
+export const useConstituencies = (params?: PaginationParams, options?: { enabled?: boolean }) => {
     return useApiQuery<PageDto<ConstituencyResponseDto>>({
         url: API_ENDPOINTS.constituencies.getConstituencies,
         queryKey: [...queryKeys.constituencies.all, params],
         params,
+        enabled: options?.enabled,
     });
 };
 

@@ -73,6 +73,8 @@ export const API_ENDPOINTS = {
         createConstituency: `${API_BASE_URL}/constituencies`,
         updateConstituency: (id: string) => `${API_BASE_URL}/constituencies/${id}`,
         deleteConstituency: (id: string) => `${API_BASE_URL}/constituencies/${id}`,
+        getSubConstituencies: `${API_BASE_URL}/constituencies/sub-constituencies/all`,
+        getSubConstituencyById: (id: string) => `${API_BASE_URL}/constituencies/sub-constituencies/${id}`,
         createSubConstituency: (id: string) => `${API_BASE_URL}/constituencies/${id}/sub-constituencies`,
         updateSubConstituency: (id: string) => `${API_BASE_URL}/constituencies/sub-constituencies/${id}`,
         deleteSubConstituency: (id: string) => `${API_BASE_URL}/constituencies/sub-constituencies/${id}`,
