@@ -3,28 +3,91 @@
 import React, { useState, useMemo } from "react"
 import { useDonations } from "@/lib/query/hooks/useDonations"
 import { useDeleteDonationMutation } from "@/lib/query/mutations/useDonationMutations"
+import { useDonors } from "@/lib/query/hooks/useDonors"
+import { useCampaigns } from "@/lib/query/hooks/useCampaigns"
+import { useDonationCauses } from "@/lib/query/hooks/useDonationCauses"
 import { DataTable } from "@/components/datatable/data-table"
 import { getColumns } from "./columns"
-import { DonationResponseDto } from "@/types/donations"
+import { DonationResponseDto, DonationsFilterParams } from "@/types/donations"
+import { Order } from "@/types/pagination"
 import { DonationDialog } from "./donation-dialog"
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
-import { DataTableToolbarProps, DataTableToolbar } from "@/components/datatable/data-table-toolbar"
-import { PaginationParams } from "@/types/pagination"
+import { DataTableToolbarProps, DataTableToolbar, FilterOption } from "@/components/datatable/data-table-toolbar"
 import { HandCoins } from "lucide-react"
 
-function DonationToolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<DonationResponseDto>>) {
-    return (
-        <DataTableToolbar
-            table={table}
-            onCreateItem={onCreateItem}
-            showCreateButton={true}
-            createButtonLabel="Add Donation"
-            searchPlaceholder="Filter donations..."
-        />
-    );
-}
+// Payment method options (static)
+const paymentMethodFilterOptions: FilterOption[] = [
+    { value: "Mobile Money", label: "Mobile Money" },
+    { value: "Bank Transfer", label: "Bank Transfer" },
+    { value: "Cash", label: "Cash" },
+    { value: "Check", label: "Check" },
+    { value: "Card", label: "Card" },
+]
 
 export function DonationClient() {
+    // Fetch data for filter dropdowns
+    const { data: donorsData } = useDonors({ page: 1, take: 50 })
+    const donors = donorsData?.data ?? []
+
+    const { data: campaignsData } = useCampaigns({ page: 1, take: 50 })
+    const campaigns = campaignsData?.data ?? []
+
+    const { data: causesData } = useDonationCauses({ page: 1, take: 50 })
+    const causes = causesData?.data ?? []
+
+    // Build filter options from fetched data
+    const donorOptions: FilterOption[] = useMemo(() =>
+        donors.map(d => ({ value: d.id, label: `${d.first_name} ${d.last_name}` })),
+        [donors]
+    )
+
+    const campaignOptions: FilterOption[] = useMemo(() =>
+        campaigns.map(c => ({ value: c.id, label: c.name })),
+        [campaigns]
+    )
+
+    const causeOptions: FilterOption[] = useMemo(() =>
+        causes.map(c => ({ value: c.id, label: c.name })),
+        [causes]
+    )
+
+    // Create custom toolbar with dynamic filter options
+    const DonationToolbar = useMemo(() => {
+        return function Toolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<DonationResponseDto>>) {
+            return (
+                <DataTableToolbar
+                    table={table}
+                    onCreateItem={onCreateItem}
+                    showCreateButton={true}
+                    createButtonLabel="Add Donation"
+                    searchPlaceholder="Filter donations..."
+                    filterableColumns={[
+                        {
+                            id: "donorId",
+                            title: "Donor",
+                            options: donorOptions,
+                        },
+                        {
+                            id: "campaignId",
+                            title: "Campaign",
+                            options: campaignOptions,
+                        },
+                        {
+                            id: "causeId",
+                            title: "Cause",
+                            options: causeOptions,
+                        },
+                        {
+                            id: "payment_method",
+                            title: "Payment Method",
+                            options: paymentMethodFilterOptions,
+                        },
+                    ]}
+                />
+            );
+        };
+    }, [donorOptions, campaignOptions, causeOptions]);
+
     // State for dialogs
     const [dialogOpen, setDialogOpen] = useState(false)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -68,7 +131,8 @@ export function DonationClient() {
         onDelete: handleDeleteClick,
     }), [])
 
-    const useDonationsQuery = (params: PaginationParams) => useDonations(params)
+    // Hook adapter - defined at component body level for ESLint compatibility
+    const useDonationsQuery = (params: DonationsFilterParams) => useDonations(params)
 
     return (
         <div className="flex h-full flex-1 flex-col p-8 md:flex">
@@ -84,7 +148,7 @@ export function DonationClient() {
             <DataTable<DonationResponseDto>
                 columns={columns}
                 useQueryHook={useDonationsQuery}
-                initialParams={{ page: 1, limit: 10 } as PaginationParams}
+                initialParams={{ page: 1, take: 10, sortBy: 'donation_date', order: Order.DESC }}
                 toolbar={DonationToolbar}
                 onCreateItem={handleCreate}
                 emptyIcon={<HandCoins className="h-10 w-10 text-muted-foreground/70" />}
@@ -111,3 +175,5 @@ export function DonationClient() {
         </div>
     )
 }
+
+

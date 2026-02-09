@@ -15,7 +15,6 @@ interface GetColumnsProps {
 }
 
 export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<UserResponseDto>[] => [
-    createAvatarColumn<UserResponseDto>("name", "Name", (user) => [{ name: `${user.first_name} ${user.last_name}`, email: user.email }]),
     createTextColumn<UserResponseDto>("first_name", "First Name", undefined, true,), // Hidden for searching/sorting but not display
     createTextColumn<UserResponseDto>("last_name", "Last Name", undefined, true,), // Hidden for searching/sorting but not display
     createTextColumn<UserResponseDto>("email", "Email", undefined, true, "text-muted-foreground"),

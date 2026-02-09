@@ -5,13 +5,19 @@ import { useDonationCauses } from "@/lib/query/hooks/useDonationCauses"
 import { useDeleteDonationCauseMutation } from "@/lib/query/mutations/useDonationCauseMutations"
 import { DataTable } from "@/components/datatable/data-table"
 import { getColumns } from "./columns"
-import { DonationCauseResponseDto } from "@/types/donation-causes"
+import { DonationCauseResponseDto, DonationCausesFilterParams } from "@/types/donation-causes"
+import { Order } from "@/types/pagination"
 import { DonationCauseDialog } from "./donation-cause-dialog"
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
 import { DataTableToolbarProps, DataTableToolbar } from "@/components/datatable/data-table-toolbar"
-import { PaginationParams } from "@/types/pagination"
-import { PageDto } from "@/types/pagination"
+
 import { Heart } from "lucide-react"
+
+// Define filter options for the toolbar
+const statusFilterOptions = [
+    { value: true, label: "Active" },
+    { value: false, label: "Inactive" },
+];
 
 function DonationCauseToolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<DonationCauseResponseDto>>) {
     return (
@@ -20,7 +26,14 @@ function DonationCauseToolbar({ table, onCreateItem }: Readonly<DataTableToolbar
             onCreateItem={onCreateItem}
             showCreateButton={true}
             createButtonLabel="Add Cause"
-            searchPlaceholder="Filter causes..."
+            searchPlaceholder="Search causes..."
+            filterableColumns={[
+                {
+                    id: "is_active",
+                    title: "Status",
+                    options: statusFilterOptions,
+                },
+            ]}
         />
     );
 }
@@ -69,21 +82,8 @@ export function DonationCauseClient() {
         onDelete: handleDeleteClick,
     }), [])
 
-    // Custom hook adapter - useDonationCauses may return array or paginated
-    const useDonationCausesQuery = (params: PaginationParams) => {
-        const query = useDonationCauses()
-        // Transform array response to PageDto format if needed
-        const transformedData: PageDto<DonationCauseResponseDto> | undefined = query.data
-            ? Array.isArray(query.data)
-                ? { data: query.data, meta: { page: 1, take: query.data.length, itemCount: query.data.length, pageCount: 1, hasPreviousPage: false, hasNextPage: false } }
-                : query.data as unknown as PageDto<DonationCauseResponseDto>
-            : undefined
-
-        return {
-            ...query,
-            data: transformedData,
-        }
-    }
+    // Hook adapter - defined at component body level for ESLint compatibility
+    const useDonationCausesQuery = (params: DonationCausesFilterParams) => useDonationCauses(params)
 
     return (
         <div className="flex h-full flex-1 flex-col p-8 md:flex">
@@ -99,7 +99,7 @@ export function DonationCauseClient() {
             <DataTable<DonationCauseResponseDto>
                 columns={columns}
                 useQueryHook={useDonationCausesQuery}
-                initialParams={{ page: 1, limit: 10 } as PaginationParams}
+                initialParams={{ page: 1, take: 10, sortBy: 'created_at', order: Order.DESC }}
                 toolbar={DonationCauseToolbar}
                 onCreateItem={handleCreate}
                 emptyIcon={<Heart className="h-10 w-10 text-muted-foreground/70" />}

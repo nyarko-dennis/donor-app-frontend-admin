@@ -3,7 +3,6 @@
 import * as React from "react"
 import {
   IconDashboard,
-  IconInnerShadowTop,
   IconMap,
   IconMapPin,
   IconSpeakerphone,
@@ -11,11 +10,13 @@ import {
   IconCoin,
   IconHeart,
   IconUserCircle,
+  IconSettings,
 } from "@tabler/icons-react"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
 import { useSession } from "next-auth/react"
+import Image from "next/image"
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +26,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import Link from "next/link"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession()
@@ -71,6 +73,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/dashboard/donors",
       icon: IconUserCircle,
     },
+    {
+      title: "Settings",
+      url: "/dashboard/settings",
+      icon: IconSettings,
+    },
   ]
 
   const userData = {
@@ -88,10 +95,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
-              </a>
+              <Link href="/dashboard">
+                <Image
+                  src="/images/gis_logo.png"
+                  alt="GIS Logo"
+                  width={120}
+                  height={40}
+                  className="h-8 w-auto"
+                />
+                <span className="text-base font-semibold">GIS</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

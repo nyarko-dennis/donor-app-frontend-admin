@@ -7,6 +7,7 @@ export interface PaginationParams {
     page?: number;
     take?: number;
     order?: Order;
+    sortBy?: string;
     search?: string;
     [key: string]: string | number | boolean | Order | undefined;
 }

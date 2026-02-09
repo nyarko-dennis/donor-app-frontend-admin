@@ -65,6 +65,8 @@ export function LoginForm({
         code: data.code, // will be empty string initially
       })
 
+
+
       if (result?.error) {
         if (result.error === "2FA_REQUIRED") {
           setShowTwoFactor(true)

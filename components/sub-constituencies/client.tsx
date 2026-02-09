@@ -3,28 +3,49 @@
 import React, { useState, useMemo } from "react"
 import { useSubConstituencies } from "@/lib/query/hooks/useSubConstituencies"
 import { useDeleteSubConstituencyMutation } from "@/lib/query/mutations/useConstituencyMutations"
+import { useConstituencies } from "@/lib/query/hooks/useConstituencies"
 import { DataTable } from "@/components/datatable/data-table"
 import { getColumns } from "./columns"
-import { SubConstituencyResponseDto } from "@/types/constituencies"
+import { SubConstituencyResponseDto, SubConstituenciesFilterParams } from "@/types/constituencies"
+import { Order } from "@/types/pagination"
 import { SubConstituencyDialog } from "./sub-constituency-dialog"
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
-import { DataTableToolbarProps, DataTableToolbar } from "@/components/datatable/data-table-toolbar"
-import { PaginationParams } from "@/types/pagination"
+import { DataTableToolbarProps, DataTableToolbar, FilterOption } from "@/components/datatable/data-table-toolbar"
 import { MapPin } from "lucide-react"
 
-function SubConstituencyToolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<SubConstituencyResponseDto>>) {
-    return (
-        <DataTableToolbar
-            table={table}
-            onCreateItem={onCreateItem}
-            showCreateButton={true}
-            createButtonLabel="Add Sub-Constituency"
-            searchPlaceholder="Filter sub-constituencies..."
-        />
-    );
-}
-
 export function SubConstituencyClient() {
+    // Fetch constituencies for filter dropdown
+    const { data: constituenciesData } = useConstituencies({ page: 1, take: 50 })
+    const constituencies = constituenciesData?.data ?? []
+
+    // Build filter options from fetched data
+    const constituencyOptions: FilterOption[] = useMemo(() =>
+        constituencies.map(c => ({ value: c.id, label: c.name })),
+        [constituencies]
+    )
+
+    // Create custom toolbar with dynamic filter options
+    const SubConstituencyToolbar = useMemo(() => {
+        return function Toolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<SubConstituencyResponseDto>>) {
+            return (
+                <DataTableToolbar
+                    table={table}
+                    onCreateItem={onCreateItem}
+                    showCreateButton={true}
+                    createButtonLabel="Add Sub-Constituency"
+                    searchPlaceholder="Search sub-constituencies..."
+                    filterableColumns={[
+                        {
+                            id: "constituencyId",
+                            title: "Constituency",
+                            options: constituencyOptions,
+                        },
+                    ]}
+                />
+            );
+        };
+    }, [constituencyOptions]);
+
     // State for dialogs
     const [dialogOpen, setDialogOpen] = useState(false)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -68,8 +89,8 @@ export function SubConstituencyClient() {
         onDelete: handleDeleteClick,
     }), [])
 
-    // Hook adapter to match DataTable's expectations
-    const useSubConstituenciesQuery = (params: PaginationParams) => useSubConstituencies(params)
+    // Hook adapter - defined at component body level for ESLint compatibility
+    const useSubConstituenciesQuery = (params: SubConstituenciesFilterParams) => useSubConstituencies(params)
 
     return (
         <div className="flex h-full flex-1 flex-col p-8 md:flex">
@@ -85,7 +106,7 @@ export function SubConstituencyClient() {
             <DataTable<SubConstituencyResponseDto>
                 columns={columns}
                 useQueryHook={useSubConstituenciesQuery}
-                initialParams={{ page: 1, take: 10 } as PaginationParams}
+                initialParams={{ page: 1, take: 10, sortBy: 'name', order: Order.DESC }}
                 toolbar={SubConstituencyToolbar}
                 onCreateItem={handleCreate}
                 emptyIcon={<MapPin className="h-10 w-10 text-muted-foreground/70" />}
@@ -112,3 +133,5 @@ export function SubConstituencyClient() {
         </div>
     )
 }
+
+

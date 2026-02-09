@@ -9,7 +9,7 @@ import { ConstituencyResponseDto } from "@/types/constituencies"
 import { ConstituencyDialog } from "./constituency-dialog"
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
 import { DataTableToolbarProps, DataTableToolbar } from "@/components/datatable/data-table-toolbar"
-import { PaginationParams } from "@/types/pagination"
+import { PaginationParams, Order } from "@/types/pagination"
 import { Landmark } from "lucide-react"
 
 function ConstituencyToolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<ConstituencyResponseDto>>) {
@@ -88,7 +88,7 @@ export function ConstituencyClient() {
             <DataTable<ConstituencyResponseDto>
                 columns={columns}
                 useQueryHook={useConstituenciesQuery}
-                initialParams={{ page: 1, limit: 10 } as PaginationParams} // Use 'limit' if that's what the API expects, or 'pageSize' if generic
+                initialParams={{ page: 1, take: 10, sortBy: 'name', order: Order.DESC }}
                 toolbar={ConstituencyToolbar}
                 onCreateItem={handleCreate}
                 emptyIcon={<Landmark className="h-10 w-10 text-muted-foreground/70" />}

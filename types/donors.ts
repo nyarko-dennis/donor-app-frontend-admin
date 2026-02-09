@@ -14,5 +14,15 @@ export interface DonorResponseDto {
     email: string;
     phone: string;
     constituency: string;
+    sub_constituency?: string;
+    constituency_id?: string;
+    sub_constituency_id?: string;
     created_at: Date;
+}
+
+import { PaginationParams } from "./pagination";
+
+export interface DonorsFilterParams extends PaginationParams {
+    constituencyId?: string;
+    subConstituencyId?: string;
 }

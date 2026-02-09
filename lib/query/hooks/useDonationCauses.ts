@@ -1,13 +1,14 @@
 import { useApiQuery } from "@/lib/query/base/use-api-query";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { queryKeys } from "@/lib/query/utils/queryKeys";
-import { DonationCauseResponseDto } from "@/types/donation-causes";
+import { DonationCauseResponseDto, DonationCausesFilterParams } from "@/types/donation-causes";
+import { PageDto } from "@/types/pagination";
 
-// Params might be different or optional for this simple list
-export const useDonationCauses = () => {
-    return useApiQuery<DonationCauseResponseDto[]>({
+export const useDonationCauses = (params?: DonationCausesFilterParams) => {
+    return useApiQuery<PageDto<DonationCauseResponseDto>>({
         url: API_ENDPOINTS.donationCauses.getDonationCauses,
-        queryKey: queryKeys.donationCauses.all,
+        queryKey: [...queryKeys.donationCauses.all, params],
+        params,
     });
 };
 

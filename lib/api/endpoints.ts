@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
         resetPassword: `${API_BASE_URL}/auth/reset-password`,
         profile: `${API_BASE_URL}/auth/profile`,
         changePassword: `${API_BASE_URL}/auth/change-password`,
+
         generate2FA: `${API_BASE_URL}/auth/2fa/generate`,
         turnOn2FA: `${API_BASE_URL}/auth/2fa/turn-on`,
     },
@@ -78,6 +79,10 @@ export const API_ENDPOINTS = {
         createSubConstituency: (id: string) => `${API_BASE_URL}/constituencies/${id}/sub-constituencies`,
         updateSubConstituency: (id: string) => `${API_BASE_URL}/constituencies/sub-constituencies/${id}`,
         deleteSubConstituency: (id: string) => `${API_BASE_URL}/constituencies/sub-constituencies/${id}`,
+    },
+
+    dashboard: {
+        getStats: `${API_BASE_URL}/dashboard/stats`,
     },
 
 };

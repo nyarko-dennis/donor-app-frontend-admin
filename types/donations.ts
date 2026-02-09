@@ -1,12 +1,25 @@
+import { PaginationParams } from "./pagination";
+
 export interface CreateDonationDto extends Record<string, unknown> {
     amount: number;
     currency: string;
     payment_method: string;
-    donation_cause: string;
-    donorId: string;
-    campaignId: string;
+    transaction_id: string;
+    notes?: string;
+    status: string;
+    created_at: Date | string;
 }
 
+export interface DonationsFilterParams extends PaginationParams {
+    donorId?: string;
+    campaignId?: string;
+    causeId?: string;
+    minAmount?: number;
+    maxAmount?: number;
+    startDate?: string;
+    endDate?: string;
+    paymentMethod?: string;
+}
 export interface DonationResponseDto {
     id: string;
     amount: number;
@@ -25,4 +38,5 @@ export interface DonationResponseDto {
         status: string;
     },
     created_at: Date;
+    donation_date?: string;
 }

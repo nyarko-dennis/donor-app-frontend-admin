@@ -3,7 +3,15 @@ import { NextResponse } from "next/server";
 
 export default withAuth(
     function middleware(req) {
-        // Custom middleware logic if needed
+        // Check for mandatory 2FA setup
+        const token = req.nextauth.token;
+        const isTwoFactorSetupRequired = token?.isTwoFactorSetupRequired;
+        const isOnSetupPage = req.nextUrl.pathname.startsWith("/setup-2fa");
+
+        if (isTwoFactorSetupRequired && !isOnSetupPage) {
+            return NextResponse.redirect(new URL("/setup-2fa", req.url));
+        }
+
         return NextResponse.next();
     },
     {

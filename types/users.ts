@@ -14,6 +14,13 @@ export interface CreateUserDto {
 
 export type UpdateUserDto = Partial<Omit<CreateUserDto, 'password'>>;
 
+import { PaginationParams } from "./pagination";
+
+export interface UsersFilterParams extends PaginationParams {
+    role?: UserRole;
+    isActive?: boolean;
+}
+
 export interface UserResponseDto {
     id: string;
     email: string;

@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { useCampaigns } from "@/lib/query/hooks/useCampaigns"
 import { useDeleteCampaignMutation } from "@/lib/query/mutations/useCampaignMutations"
-import { CampaignResponseDto } from "@/types/campaigns"
+import { CampaignResponseDto, CampaignsFilterParams } from "@/types/campaigns"
+import { Order } from "@/types/pagination"
 import { DataTable } from "@/components/datatable/data-table"
 import { DataTableToolbar, DataTableToolbarProps } from "@/components/datatable/data-table-toolbar"
 import { getColumns } from "./columns"
@@ -19,6 +20,13 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
+// Define filter options for the toolbar
+const statusFilterOptions = [
+    { value: "Active", label: "Active" },
+    { value: "Inactive", label: "Inactive" },
+    { value: "Completed", label: "Completed" },
+];
+
 function CampaignToolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<CampaignResponseDto>>) {
     return (
         <DataTableToolbar
@@ -27,6 +35,13 @@ function CampaignToolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps
             showCreateButton={true}
             createButtonLabel="Add Campaign"
             searchPlaceholder="Search campaigns..."
+            filterableColumns={[
+                {
+                    id: "status",
+                    title: "Status",
+                    options: statusFilterOptions,
+                },
+            ]}
         />
     );
 }
@@ -70,6 +85,9 @@ export function CampaignClient() {
         onDelete: handleDelete,
     })
 
+    // Hook adapter - defined at component body level for ESLint compatibility
+    const useCampaignsQuery = (params: CampaignsFilterParams) => useCampaigns(params)
+
     return (
         <div className="flex h-full flex-1 flex-col p-8 md:flex">
             <div className="flex items-center justify-between space-y-2">
@@ -83,8 +101,8 @@ export function CampaignClient() {
 
             <DataTable
                 columns={columns}
-                useQueryHook={(params) => useCampaigns(params)}
-                initialParams={{ page: 1, take: 10 }}
+                useQueryHook={useCampaignsQuery}
+                initialParams={{ page: 1, take: 10, sortBy: 'created_at', order: Order.DESC }}
                 toolbar={CampaignToolbar}
                 onCreateItem={handleCreate}
             />

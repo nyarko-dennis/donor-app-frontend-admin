@@ -3,10 +3,11 @@
 import { useState } from "react"
 import { useUsers } from "@/lib/query/hooks/useUsers"
 import { useDeleteUserMutation } from "@/lib/query/mutations/useUserMutations"
-import { UserResponseDto } from "@/types/users"
+import { UserResponseDto, UserRole, UsersFilterParams } from "@/types/users"
+import { Order } from "@/types/pagination"
 import { DataTable } from "@/components/datatable/data-table"
 import { DataTableToolbarProps, DataTableToolbar } from "@/components/datatable/data-table-toolbar"
-import { getColumns } from "./columns"
+import { getColumns } from "./columns" // Import normally
 import { UserDialog } from "./user-dialog"
 import {
     AlertDialog,
@@ -19,6 +20,18 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
+// Define filter options for the toolbar
+const roleFilterOptions = [
+    { value: UserRole.ADMIN, label: "Admin" },
+    { value: UserRole.STAKEHOLDER, label: "Stakeholder" },
+    { value: UserRole.SUPER_ADMIN, label: "Super Admin" },
+];
+
+const statusFilterOptions = [
+    { value: true, label: "Active" },
+    { value: false, label: "Inactive" },
+];
+
 function UserToolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<UserResponseDto>>) {
     return (
         <DataTableToolbar
@@ -27,21 +40,23 @@ function UserToolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<Use
             showCreateButton={true}
             createButtonLabel="Add User"
             searchPlaceholder="Search users..."
+            filterableColumns={[
+                {
+                    id: "role",
+                    title: "Role",
+                    options: roleFilterOptions,
+                },
+                {
+                    id: "isActive",
+                    title: "Status",
+                    options: statusFilterOptions,
+                },
+            ]}
         />
     );
 }
 
 export function UserClient() {
-    const [page, setPage] = useState(1)
-    const [pageSize, setPageSize] = useState(10)
-    const [sorting, setSorting] = useState<string>("")
-    const [search, setSearch] = useState("")
-
-    const { data: usersData, isPending } = useUsers({
-        page,
-        take: pageSize,
-    })
-
     const deleteMutation = useDeleteUserMutation()
 
     const [dialogOpen, setDialogOpen] = useState(false)
@@ -80,6 +95,9 @@ export function UserClient() {
         onDelete: handleDelete,
     })
 
+    // Hook adapter - defined at component body level for ESLint compatibility
+    const useUsersQuery = (params: UsersFilterParams) => useUsers(params)
+
     return (
         <div className="flex h-full flex-1 flex-col p-8 md:flex">
             <div className="flex items-center justify-between space-y-2">
@@ -93,8 +111,8 @@ export function UserClient() {
 
             <DataTable
                 columns={columns}
-                useQueryHook={(params) => useUsers(params)}
-                initialParams={{ page: 1, take: 10 }}
+                useQueryHook={useUsersQuery}
+                initialParams={{ page: 1, take: 10, sortBy: 'created_at', order: Order.DESC }}
                 toolbar={UserToolbar}
                 onCreateItem={handleCreate}
             />

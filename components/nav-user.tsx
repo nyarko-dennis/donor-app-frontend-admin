@@ -4,8 +4,10 @@ import {
   IconCreditCard,
   IconDotsVertical,
   IconLogout,
+  IconSettings,
 } from "@tabler/icons-react"
 import { signOut } from "next-auth/react"
+import Link from "next/link"
 
 import {
   Avatar,
@@ -87,15 +89,15 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {/* 
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <IconUserCircle />
-                Account
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/settings">
+                  <IconSettings />
+                  Settings
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            */}
             <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/login" })}>
               <IconLogout />
               Log out

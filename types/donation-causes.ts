@@ -4,6 +4,12 @@ export interface CreateDonationCauseDto extends Record<string, unknown> {
     is_active?: boolean;
 }
 
+import { PaginationParams } from "./pagination";
+
+export interface DonationCausesFilterParams extends PaginationParams {
+    isActive?: boolean;
+}
+
 export interface DonationCauseResponseDto {
     id: string;
     name: string;

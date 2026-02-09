@@ -40,15 +40,15 @@ export interface DataTableToolbarProps<TData> {
 }
 
 export function DataTableToolbar<TData>({
-                                            table,
-                                            searchPlaceholder = "Search...",
-                                            showCreateButton = false,
-                                            createButtonLabel = "Create",
-                                            onCreateItem,
-                                            extraActionsLeft,
-                                            actionButtons = [],
-                                            filterableColumns = [],
-                                        }: Readonly<DataTableToolbarProps<TData>>) {
+    table,
+    searchPlaceholder = "Search...",
+    showCreateButton = false,
+    createButtonLabel = "Create",
+    onCreateItem,
+    extraActionsLeft,
+    actionButtons = [],
+    filterableColumns = [],
+}: Readonly<DataTableToolbarProps<TData>>) {
     // Keep the input value in sync with the table's globalFilter so it doesn't reset on remounts
     const globalFilter = (table.getState().globalFilter as string) ?? "";
 

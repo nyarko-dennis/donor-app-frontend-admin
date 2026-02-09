@@ -8,6 +8,14 @@ export interface CreateCampaignDto extends Record<string, unknown> {
     status?: string;
 }
 
+import { PaginationParams } from "./pagination";
+
+export interface CampaignsFilterParams extends PaginationParams {
+    status?: string;
+    minGoal?: number;
+    maxGoal?: number;
+}
+
 export interface CampaignResponseDto {
     id: string;
     name: string;

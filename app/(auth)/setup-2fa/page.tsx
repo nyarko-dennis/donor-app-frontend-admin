@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSession } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import axios from "axios"
 import AuthPageWrapper from "@/components/auth-page-wrapper"
@@ -62,8 +62,8 @@ export default function Setup2faPage() {
                 }
             });
 
-            toast.success("2FA enabled successfully");
-            router.push("/dashboard");
+            toast.success("2FA enabled successfully. Please login again.");
+            await signOut({ callbackUrl: "/login" });
         } catch (error) {
             console.error(error);
             toast.error("Invalid code or failed to enable 2FA");

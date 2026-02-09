@@ -4,6 +4,16 @@ export interface CreateConstituencyDto {
 
 export type UpdateConstituencyDto = Partial<CreateConstituencyDto>;
 
+import { PaginationParams } from "./pagination";
+
+export type ConstituenciesFilterParams = PaginationParams & {
+    // Add specific filters if needed
+}
+
+export interface SubConstituenciesFilterParams extends PaginationParams {
+    constituencyId?: string;
+}
+
 export interface CreateSubConstituencyDto {
     name: string;
     description?: string;

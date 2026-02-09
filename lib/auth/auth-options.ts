@@ -19,20 +19,29 @@ export const authOptions: NextAuthOptions = {
                 try {
                     const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
-                    const response = await axios.post(`${backendUrl}/auth/login`, {
+
+                    const payload = {
                         email: credentials.email,
                         password: credentials.password,
-                    });
+                        code: credentials.code, // Include the 2FA code if present
+                    };
+
+
+
+                    const response = await axios.post(`${backendUrl}/auth/login`, payload);
+
+
 
                     // Check for 2FA requirement
                     if (response.data.isTwoFactorAuthenticationRequired) {
-                        // We can throw an error that the client can catch to redirect
-                        // Or return a special object. NextAuth error handling is tricky.
-                        // Best practice with NextAuth is often to throw an Error "2FA_REQUIRED"
+
                         throw new Error("2FA_REQUIRED");
                     }
 
                     const data = response.data;
+
+                    // Check for mandatory 2FA setup
+                    const isTwoFactorSetupRequired = response.data.isTwoFactorAuthenticationSetupRequired;
 
                     if (data && data.access_token) {
                         try {
@@ -52,6 +61,8 @@ export const authOptions: NextAuthOptions = {
                                     email: profile.email,
                                     role: profile.role,
                                     accessToken: data.access_token,
+                                    image: profile.avatar || "",
+                                    isTwoFactorSetupRequired: isTwoFactorSetupRequired,
                                 };
                             }
                         } catch (profileError) {
@@ -66,11 +77,11 @@ export const authOptions: NextAuthOptions = {
                         throw error;
                     }
                     if (axios.isAxiosError(error)) {
-                        console.error("Login failed:", error.response?.data || error.message);
+                        console.error("Login failed (Axios):", error.response?.data || error.message);
                     } else if (error instanceof Error) {
-                        console.error("Login failed:", error.message);
+                        console.error("Login failed (Error):", error.message);
                     } else {
-                        console.error("Login failed: Unknown error");
+                        console.error("Login failed: Unknown error", error);
                     }
                     return null;
                 }
@@ -83,6 +94,7 @@ export const authOptions: NextAuthOptions = {
                 token.accessToken = user.accessToken;
                 token.id = user.id;
                 token.role = user.role;
+                token.isTwoFactorSetupRequired = user.isTwoFactorSetupRequired;
             }
             return token;
         },
@@ -91,6 +103,7 @@ export const authOptions: NextAuthOptions = {
                 session.accessToken = token.accessToken;
                 session.user.id = token.id as string;
                 session.user.role = token.role as string;
+                session.user.isTwoFactorSetupRequired = token.isTwoFactorSetupRequired;
             }
             return session;
         },

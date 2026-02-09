@@ -130,7 +130,12 @@ export function DonationDialog({
                 }
             )
         } else {
-            createMutation.mutate(values, {
+            createMutation.mutate({
+                ...values,
+                transaction_id: "",
+                status: "",
+                created_at: new Date().toISOString(),
+            }, {
                 onSuccess: () => {
                     onOpenChange(false)
                     reset()

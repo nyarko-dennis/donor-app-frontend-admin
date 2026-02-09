@@ -42,7 +42,7 @@ export function SubConstituencyDialog({
 
     // Fetch constituencies for the parent select dropdown
     // Fetching a large number to cover most cases. Ideal would be async select or infinite scroll.
-    const { data: constituenciesData } = useConstituencies({ page: 1, take: 50 }, { enabled: open })
+    const { data: constituenciesData } = useConstituencies({ page: 1, take: 50 })
     const constituencies = constituenciesData?.data || []
 
     const {

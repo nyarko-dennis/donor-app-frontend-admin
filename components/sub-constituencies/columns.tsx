@@ -15,6 +15,15 @@ interface GetColumnsProps {
 }
 
 export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<SubConstituencyResponseDto>[] => [
+    // Hidden column for filtering
+    {
+        id: "constituencyId",
+        accessorFn: (row) => row.constituency_id,
+        header: "Constituency ID",
+        enableHiding: true,
+        meta: { hidden: true },
+    },
+    // Visible columns
     createTextColumn<SubConstituencyResponseDto>("name", "Name", undefined, true, "font-medium"),
     createTextColumn<SubConstituencyResponseDto>("constituency.name", "Constituency", undefined, true, "text-muted-foreground"),
     createTruncatedTextColumn<SubConstituencyResponseDto>("description", "Description"),
@@ -25,3 +34,4 @@ export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<Sub
         onDelete   // onDelete
     ),
 ];
+

@@ -1,15 +1,14 @@
 import { useApiQuery } from "@/lib/query/base/use-api-query";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import { queryKeys } from "@/lib/query/utils/queryKeys";
-import { ConstituencyResponseDto } from "@/types/constituencies";
-import { PageDto, PaginationParams } from "@/types/pagination";
+import { ConstituencyResponseDto, ConstituenciesFilterParams } from "@/types/constituencies";
+import { PageDto } from "@/types/pagination";
 
-export const useConstituencies = (params?: PaginationParams, options?: { enabled?: boolean }) => {
+export const useConstituencies = (params?: ConstituenciesFilterParams) => {
     return useApiQuery<PageDto<ConstituencyResponseDto>>({
         url: API_ENDPOINTS.constituencies.getConstituencies,
         queryKey: [...queryKeys.constituencies.all, params],
         params,
-        enabled: options?.enabled,
     });
 };
 

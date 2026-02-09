@@ -6,6 +6,7 @@ declare module "next-auth" {
         user: {
             id: string;
             role: string;
+            isTwoFactorSetupRequired?: boolean;
         } & DefaultSession["user"];
     }
 
@@ -14,6 +15,7 @@ declare module "next-auth" {
         role: string;
         accessToken?: string;
         isTwoFactorAuthenticationRequired?: boolean;
+        isTwoFactorSetupRequired?: boolean;
         message?: string;
     }
 }
@@ -23,5 +25,6 @@ declare module "next-auth/jwt" {
         accessToken?: string;
         id?: string;
         role?: string;
+        isTwoFactorSetupRequired?: boolean;
     }
 }

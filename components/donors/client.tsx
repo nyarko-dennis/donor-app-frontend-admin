@@ -3,28 +3,64 @@
 import React, { useState, useMemo } from "react"
 import { useDonors } from "@/lib/query/hooks/useDonors"
 import { useDeleteDonorMutation } from "@/lib/query/mutations/useDonorMutations"
+import { useConstituencies } from "@/lib/query/hooks/useConstituencies"
+import { useSubConstituencies } from "@/lib/query/hooks/useSubConstituencies"
 import { DataTable } from "@/components/datatable/data-table"
 import { getColumns } from "./columns"
-import { DonorResponseDto } from "@/types/donors"
+import { DonorResponseDto, DonorsFilterParams } from "@/types/donors"
+import { Order } from "@/types/pagination"
 import { DonorDialog } from "./donor-dialog"
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
-import { DataTableToolbarProps, DataTableToolbar } from "@/components/datatable/data-table-toolbar"
-import { PaginationParams } from "@/types/pagination"
+import { DataTableToolbarProps, DataTableToolbar, FilterOption } from "@/components/datatable/data-table-toolbar"
 import { Users } from "lucide-react"
 
-function DonorToolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<DonorResponseDto>>) {
-    return (
-        <DataTableToolbar
-            table={table}
-            onCreateItem={onCreateItem}
-            showCreateButton={true}
-            createButtonLabel="Add Donor"
-            searchPlaceholder="Filter donors..."
-        />
-    );
-}
-
 export function DonorClient() {
+    // Fetch constituencies for filter dropdown
+    const { data: constituenciesData } = useConstituencies({ page: 1, take: 50 })
+    const constituencies = constituenciesData?.data ?? []
+
+    // Fetch all sub-constituencies
+    const { data: subConstituenciesData } = useSubConstituencies({ page: 1, take: 50 })
+    const subConstituencies = subConstituenciesData?.data ?? []
+
+    // Build filter options from fetched data
+    const constituencyOptions: FilterOption[] = useMemo(() =>
+        constituencies.map(c => ({ value: c.id, label: c.name })),
+        [constituencies]
+    )
+
+    const subConstituencyOptions: FilterOption[] = useMemo(() =>
+        subConstituencies.map(sc => ({ value: sc.id, label: sc.name })),
+        [subConstituencies]
+    )
+
+    // Create custom toolbar with dynamic filter options
+    const DonorToolbar = useMemo(() => {
+        return function Toolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<DonorResponseDto>>) {
+            return (
+                <DataTableToolbar
+                    table={table}
+                    onCreateItem={onCreateItem}
+                    showCreateButton={true}
+                    createButtonLabel="Add Donor"
+                    searchPlaceholder="Search donors..."
+                    filterableColumns={[
+                        {
+                            id: "constituencyId",
+                            title: "Constituency",
+                            options: constituencyOptions,
+                        },
+                        {
+                            id: "subConstituencyId",
+                            title: "Sub-Constituency",
+                            options: subConstituencyOptions,
+                        },
+                    ]}
+                />
+            );
+        };
+    }, [constituencyOptions, subConstituencyOptions]);
+
     // State for dialogs
     const [dialogOpen, setDialogOpen] = useState(false)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -68,7 +104,8 @@ export function DonorClient() {
         onDelete: handleDeleteClick,
     }), [])
 
-    const useDonorsQuery = (params: PaginationParams) => useDonors(params)
+    // Hook adapter - defined at component body level for ESLint compatibility
+    const useDonorsQuery = (params: DonorsFilterParams) => useDonors(params)
 
     return (
         <div className="flex h-full flex-1 flex-col p-8 md:flex">
@@ -84,7 +121,7 @@ export function DonorClient() {
             <DataTable<DonorResponseDto>
                 columns={columns}
                 useQueryHook={useDonorsQuery}
-                initialParams={{ page: 1, limit: 10 } as PaginationParams}
+                initialParams={{ page: 1, take: 10, sortBy: 'date_joined', order: Order.DESC }}
                 toolbar={DonorToolbar}
                 onCreateItem={handleCreate}
                 emptyIcon={<Users className="h-10 w-10 text-muted-foreground/70" />}

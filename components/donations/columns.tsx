@@ -10,6 +10,29 @@ interface GetColumnsProps {
 }
 
 export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<DonationResponseDto>[] => [
+    // Hidden columns for filtering
+    {
+        id: "donorId",
+        accessorFn: (row) => row.donor?.id,
+        header: "Donor ID",
+        enableHiding: true,
+        meta: { hidden: true },
+    },
+    {
+        id: "campaignId",
+        accessorFn: (row) => row.campaign?.id,
+        header: "Campaign ID",
+        enableHiding: true,
+        meta: { hidden: true },
+    },
+    {
+        id: "causeId",
+        accessorFn: (row) => row.donation_cause,
+        header: "Cause ID",
+        enableHiding: true,
+        meta: { hidden: true },
+    },
+    // Visible columns
     createTextColumn<DonationResponseDto>(
         "donor",
         "Donor",
@@ -34,3 +57,4 @@ export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<Don
         onDelete
     )
 ]
+

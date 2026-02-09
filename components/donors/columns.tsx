@@ -10,6 +10,22 @@ interface GetColumnsProps {
 }
 
 export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<DonorResponseDto>[] => [
+    // Hidden columns for filtering
+    {
+        id: "constituencyId",
+        accessorFn: (row) => row.constituency_id,
+        header: "Constituency ID",
+        enableHiding: true,
+        meta: { hidden: true },
+    },
+    {
+        id: "subConstituencyId",
+        accessorFn: (row) => row.sub_constituency_id,
+        header: "Sub-Constituency ID",
+        enableHiding: true,
+        meta: { hidden: true },
+    },
+    // Visible columns
     createTextColumn<DonorResponseDto>(
         "name",
         "Name",
@@ -18,6 +34,7 @@ export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<Don
     createTextColumn<DonorResponseDto>("email", "Email", (row) => row.email),
     createTextColumn<DonorResponseDto>("phone", "Phone", (row) => row.phone || "—"),
     createTextColumn<DonorResponseDto>("constituency", "Constituency", (row) => row.constituency || "—"),
+    createTextColumn<DonorResponseDto>("sub_constituency", "Sub-Constituency", (row) => row.sub_constituency || "—"),
     createDateColumn<DonorResponseDto>("created_at", "Created At", (row) => row.created_at, { dateStyle: "medium" }),
     createActionsColumn<DonorResponseDto>(
         undefined,
@@ -25,3 +42,4 @@ export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<Don
         onDelete
     )
 ]
+
