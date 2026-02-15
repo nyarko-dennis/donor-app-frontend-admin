@@ -63,7 +63,7 @@ export default function Setup2faPage() {
             });
 
             toast.success("2FA enabled successfully. Please login again.");
-            await signOut({ callbackUrl: "/auth/login" });
+            await signOut({ callbackUrl: "/login" });
         } catch (error) {
             console.error(error);
             toast.error("Invalid code or failed to enable 2FA");
