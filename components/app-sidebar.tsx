@@ -84,6 +84,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
   ]
 
+
+
   // Filter nav items based on the user's role permissions
   const filteredNav = navMain.filter(
     (item) => !item.requiredPermission || can(item.requiredPermission)

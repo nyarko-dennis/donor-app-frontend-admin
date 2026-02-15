@@ -49,7 +49,7 @@ function UserToolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<Use
                     options: roleFilterOptions,
                 },
                 {
-                    id: "isActive",
+                    id: "is_active",
                     title: "Status",
                     options: statusFilterOptions,
                 },

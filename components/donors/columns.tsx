@@ -5,11 +5,12 @@ import { DonorResponseDto } from "@/types/donors"
 import { createTextColumn, createDateColumn, createActionsColumn } from "@/components/datatable/data-table-column-helpers"
 
 interface GetColumnsProps {
+    onView: (donor: DonorResponseDto) => void
     onEdit: (donor: DonorResponseDto) => void
     onDelete?: (donor: DonorResponseDto) => void
 }
 
-export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<DonorResponseDto>[] => [
+export const getColumns = ({ onView, onEdit, onDelete }: GetColumnsProps): ColumnDef<DonorResponseDto>[] => [
     // Hidden columns for filtering
     {
         id: "constituencyId",
@@ -37,7 +38,7 @@ export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<Don
     createTextColumn<DonorResponseDto>("sub_constituency", "Sub-Constituency", (row) => row.sub_constituency || "—"),
     createDateColumn<DonorResponseDto>("created_at", "Created At", (row) => row.created_at, { dateStyle: "medium" }),
     createActionsColumn<DonorResponseDto>(
-        undefined,
+        onView,
         onEdit,
         onDelete
     )

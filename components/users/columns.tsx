@@ -18,8 +18,15 @@ export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<Use
     createTextColumn<UserResponseDto>("first_name", "First Name", undefined, true,), // Hidden for searching/sorting but not display
     createTextColumn<UserResponseDto>("last_name", "Last Name", undefined, true,), // Hidden for searching/sorting but not display
     createTextColumn<UserResponseDto>("email", "Email", undefined, true, "text-muted-foreground"),
-    createTextColumn<UserResponseDto>("role", "Role", (user) => user.role.replace('_', ' ')),
+    createTextColumn<UserResponseDto>("role", "Role", undefined, true, "", (value) => value.replace('_', ' ')),
     createDateColumn<UserResponseDto>("created_at", "Created At"),
+    // Hidden column for toolbar Status filter
+    {
+        accessorKey: "is_active",
+        header: "Status",
+        enableHiding: true,
+        meta: { hidden: true },
+    } as ColumnDef<UserResponseDto>,
     createActionsColumn<UserResponseDto>(
         undefined, // onView
         onEdit,    // onEdit

@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import { useDonors } from "@/lib/query/hooks/useDonors"
 import { useDeleteDonorMutation } from "@/lib/query/mutations/useDonorMutations"
 import { useConstituencies } from "@/lib/query/hooks/useConstituencies"
@@ -17,6 +18,7 @@ import { useCurrentRole } from "@/hooks/useCurrentRole"
 import { Permission } from "@/lib/rbac"
 
 export function DonorClient() {
+    const router = useRouter()
     const { can } = useCurrentRole()
     const canCreate = can(Permission.CREATE_DONOR)
     const canDelete = can(Permission.DELETE_DONOR)
@@ -105,10 +107,15 @@ export function DonorClient() {
         }
     }
 
+    const handleView = (donor: DonorResponseDto) => {
+        router.push(`/dashboard/donors/${donor.id}`)
+    }
+
     const columns = useMemo(() => getColumns({
+        onView: handleView,
         onEdit: handleEdit,
         onDelete: canDelete ? handleDeleteClick : undefined,
-    }), [canDelete])
+    }), [canDelete, router])
 
     // Hook adapter - defined at component body level for ESLint compatibility
     const useDonorsQuery = (params: DonorsFilterParams) => useDonors(params)

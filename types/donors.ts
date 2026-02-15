@@ -18,6 +18,25 @@ export interface DonorResponseDto {
     constituency_id?: string;
     sub_constituency_id?: string;
     created_at: Date;
+    donations?: DonorDonationResponseDto[];
+}
+
+export interface DonorDonationResponseDto {
+    id: string;
+    amount: string | number;
+    currency: string;
+    payment_method: string;
+    cause?: {
+        id: string;
+        name: string;
+    };
+    donation_cause?: string;
+    campaign?: {
+        id: string;
+        name: string;
+    };
+    created_at?: Date | string;
+    donation_date?: string | Date;
 }
 
 import { PaginationParams } from "./pagination";

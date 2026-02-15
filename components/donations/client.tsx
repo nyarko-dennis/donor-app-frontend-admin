@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import { useDonations } from "@/lib/query/hooks/useDonations"
 import { useDeleteDonationMutation } from "@/lib/query/mutations/useDonationMutations"
 import { useDonors } from "@/lib/query/hooks/useDonors"
@@ -17,16 +18,16 @@ import { HandCoins } from "lucide-react"
 import { useCurrentRole } from "@/hooks/useCurrentRole"
 import { Permission } from "@/lib/rbac"
 
-// Payment method options (static)
+// Payment method options (static) — only Cash and In Kind allowed on admin portal
 const paymentMethodFilterOptions: FilterOption[] = [
-    { value: "Mobile Money", label: "Mobile Money" },
-    { value: "Bank Transfer", label: "Bank Transfer" },
     { value: "Cash", label: "Cash" },
-    { value: "Check", label: "Check" },
-    { value: "Card", label: "Card" },
+    { value: "In Kind", label: "In Kind" },
+    { value: "Mobile Money", label: "Mobile Money" },
+    { value: "Card", label: "Card" }
 ]
 
 export function DonationClient() {
+    const router = useRouter()
     const { can } = useCurrentRole()
     const canCreate = can(Permission.CREATE_DONATION)
     const canDelete = can(Permission.DELETE_DONATION)
@@ -69,11 +70,6 @@ export function DonationClient() {
                     searchPlaceholder="Filter donations..."
                     filterableColumns={[
                         {
-                            id: "donorId",
-                            title: "Donor",
-                            options: donorOptions,
-                        },
-                        {
                             id: "campaignId",
                             title: "Campaign",
                             options: campaignOptions,
@@ -102,10 +98,9 @@ export function DonationClient() {
     // Mutations
     const deleteMutation = useDeleteDonationMutation()
 
-    // Handlers
+    // Handlers — navigate to the new wizard page instead of opening a dialog
     const handleCreate = () => {
-        setSelectedDonation(null)
-        setDialogOpen(true)
+        router.push("/dashboard/donations/new")
     }
 
     const handleEdit = (donation: DonationResponseDto) => {
@@ -181,5 +176,3 @@ export function DonationClient() {
         </div>
     )
 }
-
-

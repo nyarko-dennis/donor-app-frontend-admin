@@ -117,6 +117,7 @@ export function DataTableToolbar<TData>({
                             column={table.getColumn(column.id)}
                             title={column.title}
                             options={column.options}
+                            hideCounts={table.options.manualFiltering}
                         />
                     );
                 })}
