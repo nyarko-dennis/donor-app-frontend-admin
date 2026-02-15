@@ -19,11 +19,11 @@ COPY . .
 # Environment Variables during Build
 # if you have NEXT_PUBLIC_ variables that are needed at build time, 
 # you should uncomment and add them here as ARG and ENV.
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+#ARG NEXT_PUBLIC_API_URL
+#ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
-ARG NEXT_PUBLIC_DEV_URL
-ENV NEXT_PUBLIC_DEV_URL=${NEXT_PUBLIC_DEV_URL}
+#ARG NEXT_PUBLIC_DEV_URL
+#ENV NEXT_PUBLIC_DEV_URL=${NEXT_PUBLIC_DEV_URL}
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
