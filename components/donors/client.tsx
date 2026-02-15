@@ -13,8 +13,14 @@ import { DonorDialog } from "./donor-dialog"
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
 import { DataTableToolbarProps, DataTableToolbar, FilterOption } from "@/components/datatable/data-table-toolbar"
 import { Users } from "lucide-react"
+import { useCurrentRole } from "@/hooks/useCurrentRole"
+import { Permission } from "@/lib/rbac"
 
 export function DonorClient() {
+    const { can } = useCurrentRole()
+    const canCreate = can(Permission.CREATE_DONOR)
+    const canDelete = can(Permission.DELETE_DONOR)
+
     // Fetch constituencies for filter dropdown
     const { data: constituenciesData } = useConstituencies({ page: 1, take: 50 })
     const constituencies = constituenciesData?.data ?? []
@@ -41,7 +47,7 @@ export function DonorClient() {
                 <DataTableToolbar
                     table={table}
                     onCreateItem={onCreateItem}
-                    showCreateButton={true}
+                    showCreateButton={!!onCreateItem}
                     createButtonLabel="Add Donor"
                     searchPlaceholder="Search donors..."
                     filterableColumns={[
@@ -101,8 +107,8 @@ export function DonorClient() {
 
     const columns = useMemo(() => getColumns({
         onEdit: handleEdit,
-        onDelete: handleDeleteClick,
-    }), [])
+        onDelete: canDelete ? handleDeleteClick : undefined,
+    }), [canDelete])
 
     // Hook adapter - defined at component body level for ESLint compatibility
     const useDonorsQuery = (params: DonorsFilterParams) => useDonors(params)
@@ -123,7 +129,7 @@ export function DonorClient() {
                 useQueryHook={useDonorsQuery}
                 initialParams={{ page: 1, take: 10, sortBy: 'date_joined', order: Order.DESC }}
                 toolbar={DonorToolbar}
-                onCreateItem={handleCreate}
+                onCreateItem={canCreate ? handleCreate : undefined}
                 emptyIcon={<Users className="h-10 w-10 text-muted-foreground/70" />}
                 emptyTitle="No donors found"
                 emptyDescription="Get started by creating a new donor."

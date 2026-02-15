@@ -9,6 +9,8 @@ import { DataTable } from "@/components/datatable/data-table"
 import { DataTableToolbarProps, DataTableToolbar } from "@/components/datatable/data-table-toolbar"
 import { getColumns } from "./columns" // Import normally
 import { UserDialog } from "./user-dialog"
+import { useCurrentRole } from "@/hooks/useCurrentRole"
+import { Permission } from "@/lib/rbac"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -37,7 +39,7 @@ function UserToolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<Use
         <DataTableToolbar
             table={table}
             onCreateItem={onCreateItem}
-            showCreateButton={true}
+            showCreateButton={!!onCreateItem}
             createButtonLabel="Add User"
             searchPlaceholder="Search users..."
             filterableColumns={[
@@ -57,6 +59,10 @@ function UserToolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<Use
 }
 
 export function UserClient() {
+    const { can } = useCurrentRole()
+    const canCreate = can(Permission.MANAGE_USERS)
+    const canDelete = can(Permission.MANAGE_USERS)
+
     const deleteMutation = useDeleteUserMutation()
 
     const [dialogOpen, setDialogOpen] = useState(false)
@@ -92,7 +98,7 @@ export function UserClient() {
 
     const columns = getColumns({
         onEdit: handleEdit,
-        onDelete: handleDelete,
+        onDelete: canDelete ? handleDelete : undefined,
     })
 
     // Hook adapter - defined at component body level for ESLint compatibility
@@ -114,7 +120,7 @@ export function UserClient() {
                 useQueryHook={useUsersQuery}
                 initialParams={{ page: 1, take: 10, sortBy: 'created_at', order: Order.DESC }}
                 toolbar={UserToolbar}
-                onCreateItem={handleCreate}
+                onCreateItem={canCreate ? handleCreate : undefined}
             />
 
             <UserDialog

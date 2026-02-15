@@ -17,7 +17,7 @@ function ConstituencyToolbar({ table, onCreateItem }: Readonly<DataTableToolbarP
         <DataTableToolbar
             table={table}
             onCreateItem={onCreateItem}
-            showCreateButton={true}
+            showCreateButton={!!onCreateItem}
             createButtonLabel="Add Constituency"
             searchPlaceholder="Filter constituencies..."
         />

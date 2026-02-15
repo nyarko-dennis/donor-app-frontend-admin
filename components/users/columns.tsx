@@ -11,7 +11,7 @@ import {
 
 interface GetColumnsProps {
     onEdit: (user: UserResponseDto) => void
-    onDelete: (user: UserResponseDto) => void
+    onDelete?: (user: UserResponseDto) => void
 }
 
 export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<UserResponseDto>[] => [

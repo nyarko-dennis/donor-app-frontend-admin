@@ -1,15 +1,27 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
+// Routes that require SUPER_ADMIN role
+const SUPER_ADMIN_ROUTES = ["/dashboard/users"];
+
 export default withAuth(
     function middleware(req) {
-        // Check for mandatory 2FA setup
         const token = req.nextauth.token;
+
+        // Check for mandatory 2FA setup
         const isTwoFactorSetupRequired = token?.isTwoFactorSetupRequired;
         const isOnSetupPage = req.nextUrl.pathname.startsWith("/setup-2fa");
 
         if (isTwoFactorSetupRequired && !isOnSetupPage) {
             return NextResponse.redirect(new URL("/setup-2fa", req.url));
+        }
+
+        // Role-based route protection
+        const pathname = req.nextUrl.pathname;
+        const userRole = token?.role;
+
+        if (SUPER_ADMIN_ROUTES.some((route) => pathname.startsWith(route)) && userRole !== "SUPER_ADMIN") {
+            return NextResponse.redirect(new URL("/dashboard", req.url));
         }
 
         return NextResponse.next();

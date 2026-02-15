@@ -6,7 +6,7 @@ import { createTextColumn, createDateColumn, createActionsColumn } from "@/compo
 
 interface GetColumnsProps {
     onEdit: (donor: DonorResponseDto) => void
-    onDelete: (donor: DonorResponseDto) => void
+    onDelete?: (donor: DonorResponseDto) => void
 }
 
 export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<DonorResponseDto>[] => [

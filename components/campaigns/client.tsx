@@ -9,6 +9,8 @@ import { DataTable } from "@/components/datatable/data-table"
 import { DataTableToolbar, DataTableToolbarProps } from "@/components/datatable/data-table-toolbar"
 import { getColumns } from "./columns"
 import { CampaignDialog } from "./campaign-dialog"
+import { useCurrentRole } from "@/hooks/useCurrentRole"
+import { Permission } from "@/lib/rbac"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -32,7 +34,7 @@ function CampaignToolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps
         <DataTableToolbar
             table={table}
             onCreateItem={onCreateItem}
-            showCreateButton={true}
+            showCreateButton={!!onCreateItem}
             createButtonLabel="Add Campaign"
             searchPlaceholder="Search campaigns..."
             filterableColumns={[
@@ -47,6 +49,10 @@ function CampaignToolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps
 }
 
 export function CampaignClient() {
+    const { can } = useCurrentRole()
+    const canCreate = can(Permission.CREATE_CAMPAIGN)
+    const canDelete = can(Permission.DELETE_CAMPAIGN)
+
     const deleteMutation = useDeleteCampaignMutation()
 
     const [dialogOpen, setDialogOpen] = useState(false)
@@ -82,7 +88,7 @@ export function CampaignClient() {
 
     const columns = getColumns({
         onEdit: handleEdit,
-        onDelete: handleDelete,
+        onDelete: canDelete ? handleDelete : undefined,
     })
 
     // Hook adapter - defined at component body level for ESLint compatibility
@@ -104,7 +110,7 @@ export function CampaignClient() {
                 useQueryHook={useCampaignsQuery}
                 initialParams={{ page: 1, take: 10, sortBy: 'created_at', order: Order.DESC }}
                 toolbar={CampaignToolbar}
-                onCreateItem={handleCreate}
+                onCreateItem={canCreate ? handleCreate : undefined}
             />
 
             <CampaignDialog

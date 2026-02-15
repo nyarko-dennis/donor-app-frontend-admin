@@ -16,6 +16,8 @@ import {
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
 import { useSession } from "next-auth/react"
+import { useCurrentRole } from "@/hooks/useCurrentRole"
+import { Permission } from "@/lib/rbac"
 import Image from "next/image"
 import {
   Sidebar,
@@ -30,6 +32,7 @@ import Link from "next/link"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession()
+  const { can } = useCurrentRole()
   const user = session?.user
 
   const navMain = [
@@ -52,6 +55,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: "Users",
       url: "/dashboard/users",
       icon: IconUsers,
+      requiredPermission: Permission.MANAGE_USERS,
     },
     {
       title: "Campaigns",
@@ -79,6 +83,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: IconSettings,
     },
   ]
+
+  // Filter nav items based on the user's role permissions
+  const filteredNav = navMain.filter(
+    (item) => !item.requiredPermission || can(item.requiredPermission)
+  )
 
   const userData = {
     name: user?.name || "User",
@@ -110,7 +119,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navMain} />
+        <NavMain items={filteredNav} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={userData} />

@@ -31,7 +31,7 @@ export function SubConstituencyClient() {
                 <DataTableToolbar
                     table={table}
                     onCreateItem={onCreateItem}
-                    showCreateButton={true}
+                    showCreateButton={!!onCreateItem}
                     createButtonLabel="Add Sub-Constituency"
                     searchPlaceholder="Search sub-constituencies..."
                     filterableColumns={[

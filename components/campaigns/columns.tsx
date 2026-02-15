@@ -11,7 +11,7 @@ import {
 
 interface GetColumnsProps {
     onEdit: (campaign: CampaignResponseDto) => void
-    onDelete: (campaign: CampaignResponseDto) => void
+    onDelete?: (campaign: CampaignResponseDto) => void
 }
 
 export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<CampaignResponseDto>[] => [

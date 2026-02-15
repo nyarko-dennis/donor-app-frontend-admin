@@ -24,7 +24,7 @@ function DonationCauseToolbar({ table, onCreateItem }: Readonly<DataTableToolbar
         <DataTableToolbar
             table={table}
             onCreateItem={onCreateItem}
-            showCreateButton={true}
+            showCreateButton={!!onCreateItem}
             createButtonLabel="Add Cause"
             searchPlaceholder="Search causes..."
             filterableColumns={[

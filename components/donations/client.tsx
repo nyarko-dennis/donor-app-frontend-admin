@@ -14,6 +14,8 @@ import { DonationDialog } from "./donation-dialog"
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
 import { DataTableToolbarProps, DataTableToolbar, FilterOption } from "@/components/datatable/data-table-toolbar"
 import { HandCoins } from "lucide-react"
+import { useCurrentRole } from "@/hooks/useCurrentRole"
+import { Permission } from "@/lib/rbac"
 
 // Payment method options (static)
 const paymentMethodFilterOptions: FilterOption[] = [
@@ -25,6 +27,10 @@ const paymentMethodFilterOptions: FilterOption[] = [
 ]
 
 export function DonationClient() {
+    const { can } = useCurrentRole()
+    const canCreate = can(Permission.CREATE_DONATION)
+    const canDelete = can(Permission.DELETE_DONATION)
+
     // Fetch data for filter dropdowns
     const { data: donorsData } = useDonors({ page: 1, take: 50 })
     const donors = donorsData?.data ?? []
@@ -58,7 +64,7 @@ export function DonationClient() {
                 <DataTableToolbar
                     table={table}
                     onCreateItem={onCreateItem}
-                    showCreateButton={true}
+                    showCreateButton={!!onCreateItem}
                     createButtonLabel="Add Donation"
                     searchPlaceholder="Filter donations..."
                     filterableColumns={[
@@ -128,8 +134,8 @@ export function DonationClient() {
 
     const columns = useMemo(() => getColumns({
         onEdit: handleEdit,
-        onDelete: handleDeleteClick,
-    }), [])
+        onDelete: canDelete ? handleDeleteClick : undefined,
+    }), [canDelete])
 
     // Hook adapter - defined at component body level for ESLint compatibility
     const useDonationsQuery = (params: DonationsFilterParams) => useDonations(params)
@@ -150,7 +156,7 @@ export function DonationClient() {
                 useQueryHook={useDonationsQuery}
                 initialParams={{ page: 1, take: 10, sortBy: 'donation_date', order: Order.DESC }}
                 toolbar={DonationToolbar}
-                onCreateItem={handleCreate}
+                onCreateItem={canCreate ? handleCreate : undefined}
                 emptyIcon={<HandCoins className="h-10 w-10 text-muted-foreground/70" />}
                 emptyTitle="No donations found"
                 emptyDescription="Get started by creating a new donation."
