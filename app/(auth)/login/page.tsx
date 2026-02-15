@@ -1,3 +1,5 @@
+import { Suspense } from "react"
+import { Spinner } from "@/components/ui/spinner"
 import { LoginForm } from "@/components/login-form"
 import Image from "next/image"
 
@@ -19,7 +21,9 @@ export default function LoginPage() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <LoginForm />
+            <Suspense fallback={<div className="flex justify-center"><Spinner /></div>}>
+              <LoginForm />
+            </Suspense>
           </div>
         </div>
       </div>
