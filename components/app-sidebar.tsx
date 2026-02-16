@@ -11,6 +11,7 @@ import {
   IconHeart,
   IconUserCircle,
   IconSettings,
+  IconFileExport,
 } from "@tabler/icons-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -81,6 +82,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: "Settings",
       url: "/dashboard/settings",
       icon: IconSettings,
+    },
+    {
+      title: "Data Exports",
+      url: "/dashboard/exports",
+      icon: IconFileExport,
     },
   ]
 

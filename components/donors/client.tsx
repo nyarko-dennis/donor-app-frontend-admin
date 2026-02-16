@@ -7,6 +7,7 @@ import { useDeleteDonorMutation } from "@/lib/query/mutations/useDonorMutations"
 import { useConstituencies } from "@/lib/query/hooks/useConstituencies"
 import { useSubConstituencies } from "@/lib/query/hooks/useSubConstituencies"
 import { DataTable } from "@/components/datatable/data-table"
+import { ExportButton } from "@/components/exports/export-button"
 import { getColumns } from "./columns"
 import { DonorResponseDto, DonorsFilterParams } from "@/types/donors"
 import { Order } from "@/types/pagination"
@@ -45,6 +46,16 @@ export function DonorClient() {
     // Create custom toolbar with dynamic filter options
     const DonorToolbar = useMemo(() => {
         return function Toolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<DonorResponseDto>>) {
+            // Extract current filters from table state
+            const filters: any = {};
+            table.getState().columnFilters.forEach((filter) => {
+                filters[filter.id] = filter.value;
+            });
+            const globalFilter = table.getState().globalFilter;
+            if (globalFilter) {
+                filters.search = globalFilter;
+            }
+
             return (
                 <DataTableToolbar
                     table={table}
@@ -64,7 +75,9 @@ export function DonorClient() {
                             options: subConstituencyOptions,
                         },
                     ]}
-                />
+                >
+                    <ExportButton entity="donors" filters={filters} />
+                </DataTableToolbar>
             );
         };
     }, [constituencyOptions, subConstituencyOptions]);

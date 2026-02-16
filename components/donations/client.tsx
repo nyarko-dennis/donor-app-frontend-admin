@@ -8,6 +8,7 @@ import { useDonors } from "@/lib/query/hooks/useDonors"
 import { useCampaigns } from "@/lib/query/hooks/useCampaigns"
 import { useDonationCauses } from "@/lib/query/hooks/useDonationCauses"
 import { DataTable } from "@/components/datatable/data-table"
+import { ExportButton } from "@/components/exports/export-button"
 import { getColumns } from "./columns"
 import { DonationResponseDto, DonationsFilterParams } from "@/types/donations"
 import { Order } from "@/types/pagination"
@@ -61,6 +62,16 @@ export function DonationClient() {
     // Create custom toolbar with dynamic filter options
     const DonationToolbar = useMemo(() => {
         return function Toolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<DonationResponseDto>>) {
+            // Extract current filters from table state
+            const filters: any = {};
+            table.getState().columnFilters.forEach((filter) => {
+                filters[filter.id] = filter.value;
+            });
+            const globalFilter = table.getState().globalFilter;
+            if (globalFilter) {
+                filters.search = globalFilter;
+            }
+
             return (
                 <DataTableToolbar
                     table={table}
@@ -85,7 +96,9 @@ export function DonationClient() {
                             options: paymentMethodFilterOptions,
                         },
                     ]}
-                />
+                >
+                    <ExportButton entity="donations" filters={filters} />
+                </DataTableToolbar>
             );
         };
     }, [donorOptions, campaignOptions, causeOptions]);

@@ -7,6 +7,7 @@ import { CampaignResponseDto, CampaignsFilterParams } from "@/types/campaigns"
 import { Order } from "@/types/pagination"
 import { DataTable } from "@/components/datatable/data-table"
 import { DataTableToolbar, DataTableToolbarProps } from "@/components/datatable/data-table-toolbar"
+import { ExportButton } from "@/components/exports/export-button"
 import { getColumns } from "./columns"
 import { CampaignDialog } from "./campaign-dialog"
 import { useCurrentRole } from "@/hooks/useCurrentRole"
@@ -30,6 +31,16 @@ const statusFilterOptions = [
 ];
 
 function CampaignToolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps<CampaignResponseDto>>) {
+    // Extract current filters from table state
+    const filters: any = {};
+    table.getState().columnFilters.forEach((filter) => {
+        filters[filter.id] = filter.value;
+    });
+    const globalFilter = table.getState().globalFilter;
+    if (globalFilter) {
+        filters.search = globalFilter;
+    }
+
     return (
         <DataTableToolbar
             table={table}
@@ -44,7 +55,9 @@ function CampaignToolbar({ table, onCreateItem }: Readonly<DataTableToolbarProps
                     options: statusFilterOptions,
                 },
             ]}
-        />
+        >
+            <ExportButton entity="campaigns" filters={filters} />
+        </DataTableToolbar>
     );
 }
 

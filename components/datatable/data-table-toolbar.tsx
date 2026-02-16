@@ -48,7 +48,8 @@ export function DataTableToolbar<TData>({
     extraActionsLeft,
     actionButtons = [],
     filterableColumns = [],
-}: Readonly<DataTableToolbarProps<TData>>) {
+    children,
+}: Readonly<DataTableToolbarProps<TData> & { children?: React.ReactNode }>) {
     // Keep the input value in sync with the table's globalFilter so it doesn't reset on remounts
     const globalFilter = (table.getState().globalFilter as string) ?? "";
 
@@ -136,6 +137,8 @@ export function DataTableToolbar<TData>({
             </div>
 
             <div className="flex items-center space-x-2">
+                {/* Additional action buttons */}
+                {children}
                 {/* Additional action buttons */}
                 {actionButtons.map(({ key, label, onClick, icon, variant = "default", size = "sm", className }) => (
                     <Button key={key} onClick={onClick} variant={variant} size={size} className={className ?? "h-8"}>
