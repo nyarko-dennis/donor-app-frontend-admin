@@ -1,9 +1,11 @@
 
 "use client"
 
+import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     Form,
@@ -29,6 +31,9 @@ const formSchema = z.object({
 
 export function ChangePasswordForm() {
     const { mutate: changePassword, isPending } = useChangePassword()
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+    const [showNewPassword, setShowNewPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -40,7 +45,10 @@ export function ChangePasswordForm() {
     })
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        changePassword(values, {
+        changePassword({
+            oldPassword: values.currentPassword,
+            newPassword: values.newPassword,
+        }, {
             onSuccess: () => {
                 form.reset()
             }
@@ -63,7 +71,26 @@ export function ChangePasswordForm() {
                                 <FormItem>
                                     <FormLabel>Current Password</FormLabel>
                                     <FormControl>
-                                        <Input type="password" placeholder="••••••••" {...field} />
+                                        <div className="relative">
+                                            <Input
+                                                type={showCurrentPassword ? "text" : "password"}
+                                                placeholder="••••••••"
+                                                {...field}
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                            >
+                                                {showCurrentPassword ? (
+                                                    <Eye className="h-4 w-4 text-muted-foreground" />
+                                                ) : (
+                                                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                                )}
+                                            </Button>
+                                        </div>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -76,7 +103,26 @@ export function ChangePasswordForm() {
                                 <FormItem>
                                     <FormLabel>New Password</FormLabel>
                                     <FormControl>
-                                        <Input type="password" placeholder="••••••••" {...field} />
+                                        <div className="relative">
+                                            <Input
+                                                type={showNewPassword ? "text" : "password"}
+                                                placeholder="••••••••"
+                                                {...field}
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                                onClick={() => setShowNewPassword(!showNewPassword)}
+                                            >
+                                                {showNewPassword ? (
+                                                    <Eye className="h-4 w-4 text-muted-foreground" />
+                                                ) : (
+                                                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                                )}
+                                            </Button>
+                                        </div>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -89,7 +135,26 @@ export function ChangePasswordForm() {
                                 <FormItem>
                                     <FormLabel>Confirm New Password</FormLabel>
                                     <FormControl>
-                                        <Input type="password" placeholder="••••••••" {...field} />
+                                        <div className="relative">
+                                            <Input
+                                                type={showConfirmPassword ? "text" : "password"}
+                                                placeholder="••••••••"
+                                                {...field}
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            >
+                                                {showConfirmPassword ? (
+                                                    <Eye className="h-4 w-4 text-muted-foreground" />
+                                                ) : (
+                                                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                                )}
+                                            </Button>
+                                        </div>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

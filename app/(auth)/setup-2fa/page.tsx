@@ -113,10 +113,6 @@ export default function Setup2faPage() {
                     {isLoading && <Spinner className="mr-2" />}
                     {isLoading ? "Enabling..." : "Enable 2FA"}
                 </Button>
-
-                <Button variant="ghost" onClick={() => router.push("/dashboard")} className="w-full">
-                    Skip for now
-                </Button>
             </div>
         </AuthPageWrapper>
     )

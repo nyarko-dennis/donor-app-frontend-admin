@@ -13,6 +13,7 @@ import { toast } from "sonner"
 import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Spinner } from "@/components/ui/spinner"
+import { Eye, EyeOff } from "lucide-react"
 
 const resetPasswordSchema = z.object({
     password: z.string().min(8, "Password must be at least 8 characters"),
@@ -31,6 +32,8 @@ function ResetPasswordForm() {
 
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
     const {
         register,
@@ -91,24 +94,54 @@ function ResetPasswordForm() {
                     <div className="grid gap-6">
                         <div className="grid gap-2">
                             <Label htmlFor="password">New Password</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                required
-                                {...register("password")}
-                            />
+                            <div className="relative">
+                                <Input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    required
+                                    {...register("password")}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? (
+                                        <Eye className="h-4 w-4 text-muted-foreground" />
+                                    ) : (
+                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                    )}
+                                </Button>
+                            </div>
                             {errors.password && (
                                 <p className="text-red-500 text-xs">{errors.password.message}</p>
                             )}
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="confirmPassword">Confirm Password</Label>
-                            <Input
-                                id="confirmPassword"
-                                type="password"
-                                required
-                                {...register("confirmPassword")}
-                            />
+                            <div className="relative">
+                                <Input
+                                    id="confirmPassword"
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    required
+                                    {...register("confirmPassword")}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                >
+                                    {showConfirmPassword ? (
+                                        <Eye className="h-4 w-4 text-muted-foreground" />
+                                    ) : (
+                                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                    )}
+                                </Button>
+                            </div>
                             {errors.confirmPassword && (
                                 <p className="text-red-500 text-xs">{errors.confirmPassword.message}</p>
                             )}

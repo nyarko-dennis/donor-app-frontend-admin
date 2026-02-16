@@ -7,9 +7,8 @@ import { useSession } from "next-auth/react";
 import axios from "axios";
 
 interface ChangePasswordParams {
-    currentPassword?: string;
+    oldPassword?: string;
     newPassword?: string;
-    confirmPassword?: string;
 }
 
 export function useChangePassword() {
