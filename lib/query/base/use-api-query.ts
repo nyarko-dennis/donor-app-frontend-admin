@@ -114,7 +114,7 @@ export function useApiQuery<
                 if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
                     // Handle token expiration/forbidden once
                     if (isAuthenticated && !!accessToken) {
-                        const callbackUrl = `/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+                        const callbackUrl = `/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`;
                         triggerSignOutOnce(callbackUrl);
                         notifySessionExpiredOnce(() =>
                             toast.error('Session Expired', {

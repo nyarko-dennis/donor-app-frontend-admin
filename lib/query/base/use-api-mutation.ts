@@ -182,7 +182,7 @@ export function useApiMutation<
         onError: (error: TError, variables, context, mutation) => {
             // Handle token expiration or forbidden access (single-flight)
             if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
-                const callbackUrl = `/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+                const callbackUrl = `/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`;
                 triggerSignOutOnce(callbackUrl);
                 notifySessionExpiredOnce(() =>
                     toast.error('Session expired', {
