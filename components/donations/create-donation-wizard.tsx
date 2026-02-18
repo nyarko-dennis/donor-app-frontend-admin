@@ -285,10 +285,11 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
     const isLoading = createDonationMutation.isPending || updateDonationMutation.isPending || createDonorMutation.isPending || isLoadingDonation
 
     // Helper for ComboBox displays
-    const getCampaignLabel = (id: string) => campaigns.find(c => c.id === id)?.name || "Select Campaign"
-    const getDonorLabel = (id: string) => {
-        const d = donors.find(d => d.id === id)
-        return d ? `${d.first_name} ${d.last_name} (${d.email})` : "Select Donor"
+    const getCampaignLabel = (id: string) => {
+        const c = campaigns.find(c => c.id === id)
+        if (c) return c.name
+        if (isEditing && donationData?.campaign && donationData.campaign.id === id) return donationData.campaign.name
+        return "Select Campaign"
     }
 
     return (
@@ -398,7 +399,7 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
                                                             <FieldContent>
                                                                 <Select
                                                                     onValueChange={(val) => setValue("donation_cause", val)}
-                                                                    defaultValue={watch("donation_cause")}
+                                                                    value={watch("donation_cause")}
                                                                 >
                                                                     <SelectTrigger className="h-11">
                                                                         <SelectValue placeholder="Select cause" />
