@@ -12,7 +12,6 @@ import { ExportButton } from "@/components/exports/export-button"
 import { getColumns } from "./columns"
 import { DonationResponseDto, DonationsFilterParams } from "@/types/donations"
 import { Order } from "@/types/pagination"
-import { DonationDialog } from "./donation-dialog"
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
 import { DataTableToolbarProps, DataTableToolbar, FilterOption } from "@/components/datatable/data-table-toolbar"
 import { HandCoins } from "lucide-react"
@@ -117,8 +116,7 @@ export function DonationClient() {
     }
 
     const handleEdit = (donation: DonationResponseDto) => {
-        setSelectedDonation(donation)
-        setDialogOpen(true)
+        router.push(`/dashboard/donations/${donation.id}/edit`)
     }
 
     const handleDeleteClick = (donation: DonationResponseDto) => {
@@ -170,12 +168,6 @@ export function DonationClient() {
                 emptyDescription="Get started by creating a new donation."
                 noResultsTitle="No matching donations"
                 noResultsDescription="Try adjusting your search filters."
-            />
-
-            <DonationDialog
-                open={dialogOpen}
-                onOpenChange={setDialogOpen}
-                donation={selectedDonation}
             />
 
             <DeleteConfirmationDialog

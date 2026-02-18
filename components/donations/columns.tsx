@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { DonationResponseDto } from "@/types/donations"
 import { createTextColumn, createDateColumn, createActionsColumn } from "@/components/datatable/data-table-column-helpers"
+import { Pencil } from "lucide-react"
 
 interface GetColumnsProps {
     onEdit: (donation: DonationResponseDto) => void
@@ -46,8 +47,20 @@ export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<Don
     createDateColumn<DonationResponseDto>("created_at", "Date", (row) => row.created_at, { dateStyle: "medium", timeStyle: "short" }),
     createActionsColumn<DonationResponseDto>(
         undefined,
-        onEdit,
-        onDelete
+        undefined,
+        onDelete,
+        (row) => {
+            if (["Cash", "In Kind"].includes(row.payment_method)) {
+                return [
+                    {
+                        label: "Edit",
+                        onClick: () => onEdit(row),
+                        icon: <Pencil className="mr-2 h-4 w-4" />,
+                    },
+                ]
+            }
+            return []
+        }
     )
 ]
 

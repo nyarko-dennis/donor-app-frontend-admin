@@ -43,6 +43,9 @@ import { useCreateDonorMutation } from "@/lib/query/mutations/useDonorMutations"
 import { toast } from "sonner"
 import { PaginationParams } from "@/types/pagination"
 import { useDebounce } from "@/lib/hooks/use-debounce"
+import { useDonation } from "@/lib/query/hooks/useDonations"
+import { useUpdateDonationMutation } from "@/lib/query/mutations/useDonationMutations"
+import { useEffect } from "react"
 
 // Combined schema with conditional validation
 const wizardSchema = z.object({
@@ -119,13 +122,18 @@ const STEPS = [
     { id: 2, title: "Donor Information", icon: Users, description: "Select or Create Donor" },
 ]
 
-export function CreateDonationWizard() {
+export function CreateDonationWizard({ donationId }: { donationId?: string }) {
+    const isEditing = !!donationId
     const router = useRouter()
     const [step, setStep] = useState(1)
 
     // Mutations
     const createDonationMutation = useCreateDonationMutation()
+    const updateDonationMutation = useUpdateDonationMutation()
     const createDonorMutation = useCreateDonorMutation()
+
+    // Query
+    const { data: donationData, isLoading: isLoadingDonation } = useDonation(donationId ?? "")
 
     const [campaignSearch, setCampaignSearch] = useState("")
     const [donorSearch, setDonorSearch] = useState("")
@@ -178,7 +186,22 @@ export function CreateDonationWizard() {
         mode: "onChange"
     })
 
-    const { register, handleSubmit, watch, setValue, trigger, formState: { errors } } = form
+    const { register, handleSubmit, watch, setValue, reset, trigger, formState: { errors } } = form
+
+    // Handle initial data for editing
+    useEffect(() => {
+        if (isEditing && donationData) {
+            reset({
+                amount: donationData.amount,
+                currency: donationData.currency as "GHS",
+                payment_method: donationData.payment_method as "Cash" | "In Kind",
+                donation_cause: donationData.donation_cause,
+                campaignId: donationData.campaign?.id,
+                isNewDonor: false,
+                donorId: donationData.donor?.id,
+            });
+        }
+    }, [isEditing, donationData, reset]);
 
     const isNewDonor = watch("isNewDonor")
     const selectedConstituency = watch("constituency")
@@ -225,28 +248,41 @@ export function CreateDonationWizard() {
                 return
             }
 
-            // Create Donation
-            await createDonationMutation.mutateAsync({
-                amount: data.amount,
-                currency: data.currency,
-                payment_method: data.payment_method,
-                donation_cause: data.donation_cause,
-                campaignId: data.campaignId,
-                donorId: donorId,
-                status: "completed",
-                transaction_id: `TXN-${Date.now()}`,
-                created_at: new Date().toISOString()
-            })
-
-            toast.success("Donation created successfully")
+            if (isEditing) {
+                await updateDonationMutation.mutateAsync({
+                    id: donationId!,
+                    data: {
+                        amount: data.amount,
+                        currency: data.currency,
+                        payment_method: data.payment_method,
+                        donation_cause: data.donation_cause,
+                        campaignId: data.campaignId,
+                    }
+                })
+                toast.success("Donation updated successfully")
+            } else {
+                // Create Donation
+                await createDonationMutation.mutateAsync({
+                    amount: data.amount,
+                    currency: data.currency,
+                    payment_method: data.payment_method,
+                    donation_cause: data.donation_cause,
+                    campaignId: data.campaignId,
+                    donorId: donorId,
+                    status: "completed",
+                    transaction_id: `TXN-${Date.now()}`,
+                    created_at: new Date().toISOString()
+                })
+                toast.success("Donation created successfully")
+            }
             router.push("/dashboard/donations")
         } catch (error) {
             console.error(error)
-            toast.error("Failed to create donation")
+            toast.error(isEditing ? "Failed to update donation" : "Failed to create donation")
         }
     }
 
-    const isLoading = createDonationMutation.isPending || createDonorMutation.isPending
+    const isLoading = createDonationMutation.isPending || updateDonationMutation.isPending || createDonorMutation.isPending || isLoadingDonation
 
     // Helper for ComboBox displays
     const getCampaignLabel = (id: string) => campaigns.find(c => c.id === id)?.name || "Select Campaign"
@@ -261,9 +297,9 @@ export function CreateDonationWizard() {
                 {/* Sidebar Stepper */}
                 <div className="w-80 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 p-8 flex flex-col hidden md:flex">
                     <div className="mb-10">
-                        <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Create Donation</h1>
+                        <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{isEditing ? "Edit Donation" : "Create Donation"}</h1>
                         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">
-                            Complete the steps to record a new donation.
+                            {isEditing ? "Update the details for this donation." : "Complete the steps to record a new donation."}
                         </p>
                     </div>
 
@@ -429,10 +465,12 @@ export function CreateDonationWizard() {
                                                     <div className="flex border rounded-lg p-1 bg-muted/20 self-stretch md:self-auto">
                                                         <button
                                                             type="button"
+                                                            disabled={isEditing}
                                                             onClick={() => setValue("isNewDonor", false)}
                                                             className={cn(
                                                                 "flex-1 md:flex-none px-4 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-all",
-                                                                !isNewDonor ? "bg-white shadow text-primary" : "text-muted-foreground hover:text-foreground"
+                                                                !isNewDonor ? "bg-white shadow text-primary" : "text-muted-foreground hover:text-foreground",
+                                                                isEditing && "opacity-50 cursor-not-allowed"
                                                             )}
                                                         >
                                                             <Users className="w-4 h-4" />
@@ -440,10 +478,12 @@ export function CreateDonationWizard() {
                                                         </button>
                                                         <button
                                                             type="button"
+                                                            disabled={isEditing}
                                                             onClick={() => setValue("isNewDonor", true)}
                                                             className={cn(
                                                                 "flex-1 md:flex-none px-4 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-all",
-                                                                isNewDonor ? "bg-white shadow text-primary" : "text-muted-foreground hover:text-foreground"
+                                                                isNewDonor ? "bg-white shadow text-primary" : "text-muted-foreground hover:text-foreground",
+                                                                isEditing && "opacity-50 cursor-not-allowed"
                                                             )}
                                                         >
                                                             <UserPlus className="w-4 h-4" />
@@ -462,9 +502,12 @@ export function CreateDonationWizard() {
                                                                     onValueChange={(val) => setValue("donorId", val ? String(val) : "")}
                                                                     itemToStringLabel={(val) => {
                                                                         const d = donors.find((d: any) => d.id === val)
-                                                                        return d ? `${d.first_name} ${d.last_name} (${d.email})` : String(val)
+                                                                        if (d) return `${d.first_name} ${d.last_name} (${d.email})`
+                                                                        if (isEditing && donationData?.donor) return `${donationData.donor.first_name} ${donationData.donor.last_name} (${donationData.donor.email})`
+                                                                        return String(val)
                                                                     }}
                                                                     onInputValueChange={(val) => setDonorSearch(val)}
+                                                                    disabled={isEditing}
                                                                 >
                                                                     <ComboboxInput
                                                                         placeholder="Search donor name or email..."
@@ -609,7 +652,7 @@ export function CreateDonationWizard() {
                                         Submitting...
                                     </>
                                 ) : (
-                                    "Create Donation"
+                                    isEditing ? "Update Donation" : "Create Donation"
                                 )}
                             </Button>
                         )}
