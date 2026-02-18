@@ -45,7 +45,8 @@ import { PaginationParams } from "@/types/pagination"
 import { useDebounce } from "@/lib/hooks/use-debounce"
 import { useDonation } from "@/lib/query/hooks/useDonations"
 import { useUpdateDonationMutation } from "@/lib/query/mutations/useDonationMutations"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
+import { Controller } from "react-hook-form"
 
 // Combined schema with conditional validation
 const wizardSchema = z.object({
@@ -186,11 +187,12 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
         mode: "onChange"
     })
 
-    const { register, handleSubmit, watch, setValue, reset, trigger, formState: { errors } } = form
+    const { register, handleSubmit, watch, setValue, reset, trigger, control, formState: { errors } } = form
+    const isResetRef = useRef(false)
 
     // Handle initial data for editing
     useEffect(() => {
-        if (isEditing && donationData) {
+        if (isEditing && donationData && !isResetRef.current) {
             reset({
                 amount: donationData.amount,
                 currency: donationData.currency as "GHS",
@@ -200,6 +202,7 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
                 isNewDonor: false,
                 donorId: donationData.donor?.id,
             });
+            isResetRef.current = true
         }
     }, [isEditing, donationData, reset]);
 
@@ -290,6 +293,13 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
         if (c) return c.name
         if (isEditing && donationData?.campaign && donationData.campaign.id === id) return donationData.campaign.name
         return "Select Campaign"
+    }
+
+    const getDonorLabel = (id: string) => {
+        const d = donors.find(d => d.id === id)
+        if (d) return `${d.first_name} ${d.last_name} (${d.email})`
+        if (isEditing && donationData?.donor && donationData.donor.id === id) return `${donationData.donor.first_name} ${donationData.donor.last_name} (${donationData.donor.email})`
+        return "Select Donor"
     }
 
     return (
@@ -397,23 +407,29 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
                                                         <Field>
                                                             <FieldLabel>Donation Cause</FieldLabel>
                                                             <FieldContent>
-                                                                <Select
-                                                                    onValueChange={(val) => setValue("donation_cause", val)}
-                                                                    value={watch("donation_cause")}
-                                                                >
-                                                                    <SelectTrigger className="h-11">
-                                                                        <SelectValue placeholder="Select cause" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {isLoadingCauses ? (
-                                                                            <div className="flex justify-center p-2"><Loader2 className="animate-spin w-4 h-4" /></div>
-                                                                        ) : (
-                                                                            donationCauses.map((cause: any) => (
-                                                                                <SelectItem key={cause.id} value={cause.name}>{cause.name}</SelectItem>
-                                                                            ))
-                                                                        )}
-                                                                    </SelectContent>
-                                                                </Select>
+                                                                <Controller
+                                                                    name="donation_cause"
+                                                                    control={control}
+                                                                    render={({ field }) => (
+                                                                        <Select
+                                                                            onValueChange={field.onChange}
+                                                                            value={field.value}
+                                                                        >
+                                                                            <SelectTrigger className="h-11">
+                                                                                <SelectValue placeholder="Select cause" />
+                                                                            </SelectTrigger>
+                                                                            <SelectContent>
+                                                                                {isLoadingCauses ? (
+                                                                                    <div className="flex justify-center p-2"><Loader2 className="animate-spin w-4 h-4" /></div>
+                                                                                ) : (
+                                                                                    donationCauses.map((cause: any) => (
+                                                                                        <SelectItem key={cause.id} value={cause.name}>{cause.name}</SelectItem>
+                                                                                    ))
+                                                                                )}
+                                                                            </SelectContent>
+                                                                        </Select>
+                                                                    )}
+                                                                />
                                                             </FieldContent>
                                                             <FieldError errors={[errors.donation_cause]} />
                                                         </Field>
@@ -634,6 +650,7 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
 
                         {step === 1 ? (
                             <Button
+                                key="btn-next"
                                 type="button"
                                 onClick={handleNext}
                                 className="w-32 h-11"
@@ -642,6 +659,7 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
                             </Button>
                         ) : (
                             <Button
+                                key="btn-submit"
                                 type="submit"
                                 form="donation-wizard-form"
                                 disabled={isLoading}
