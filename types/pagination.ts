@@ -9,7 +9,7 @@ export interface PaginationParams {
     order?: Order;
     sortBy?: string;
     search?: string;
-    [key: string]: string | number | boolean | Order | undefined;
+    [key: string]: string | number | boolean | Order | string[] | undefined;
 }
 
 export interface PageMetaDto {

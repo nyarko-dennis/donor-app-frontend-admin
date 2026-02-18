@@ -11,7 +11,7 @@ export type ConstituenciesFilterParams = PaginationParams & {
 }
 
 export interface SubConstituenciesFilterParams extends PaginationParams {
-    constituencyId?: string;
+    constituencyId?: string | string[];
 }
 
 export interface CreateSubConstituencyDto {

@@ -5,9 +5,12 @@ export function serializeQueryParams(params: QueryParams): string {
   return Object.entries(params)
     .flatMap(([key, value]) => {
       if (Array.isArray(value)) {
-        return value
-          .filter((v): v is Exclude<QueryParamValue, undefined | null> => v !== undefined && v !== null)
-          .map((v) => `${encodeURIComponent(key)}=${encodeURIComponent(String(v))}`);
+        const filteredValues = value.filter((v): v is Exclude<QueryParamValue, undefined | null> => v !== undefined && v !== null);
+        if (filteredValues.length > 0) {
+          // Join with literal comma, as requested
+          return `${encodeURIComponent(key)}=${filteredValues.map(v => encodeURIComponent(String(v))).join(",")}`;
+        }
+        return [];
       } else if (value !== undefined && value !== null) {
         return `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`;
       }

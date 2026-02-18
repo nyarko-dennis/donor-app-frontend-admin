@@ -11,12 +11,17 @@ export const triggerExport = async (
     filters: ExportFilters
 ) => {
     try {
+        const processedFilters = Object.entries(filters).reduce((acc, [key, value]) => {
+            acc[key] = Array.isArray(value) ? value.join(',') : value;
+            return acc;
+        }, {} as Record<string, any>);
+
         const response = await axiosInstance.post(
             '/exports',
             {
                 entity,
                 format,
-                filters,
+                filters: processedFilters,
             },
             {
                 responseType: 'blob', // IMPORTANT: This tells axios to treat the response as binary data

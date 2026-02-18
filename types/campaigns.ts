@@ -11,7 +11,7 @@ export interface CreateCampaignDto extends Record<string, unknown> {
 import { PaginationParams } from "./pagination";
 
 export interface CampaignsFilterParams extends PaginationParams {
-    status?: string;
+    status?: string | string[];
     minGoal?: number;
     maxGoal?: number;
 }

@@ -42,6 +42,6 @@ export interface DonorDonationResponseDto {
 import { PaginationParams } from "./pagination";
 
 export interface DonorsFilterParams extends PaginationParams {
-    constituencyId?: string;
-    subConstituencyId?: string;
+    constituencyId?: string | string[];
+    subConstituencyId?: string | string[];
 }

@@ -13,16 +13,10 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { useCampaigns } from "@/lib/query/hooks/useCampaigns";
 import { useConstituencies } from "@/lib/query/hooks/useConstituencies";
 import { AnalyticsFilters } from "@/lib/api/analytics";
+import { AnalyticsFacetedFilter } from "./analytics-faceted-filter";
 
 interface AnalyticsToolbarProps {
     onFilterChange: (filters: AnalyticsFilters) => void;
@@ -53,12 +47,12 @@ export function AnalyticsToolbar({ onFilterChange, filters }: AnalyticsToolbarPr
     }
 
 
-    const handleCampaignChange = (value: string) => {
-        onFilterChange({ ...filters, campaignId: value === "all" ? undefined : value });
+    const handleCampaignChange = (values: string[]) => {
+        onFilterChange({ ...filters, campaignId: values.length > 0 ? values : undefined });
     };
 
-    const handleConstituencyChange = (value: string) => {
-        onFilterChange({ ...filters, constituencyId: value === "all" ? undefined : value });
+    const handleConstituencyChange = (values: string[]) => {
+        onFilterChange({ ...filters, constituencyId: values.length > 0 ? values : undefined });
     };
 
     return (
@@ -70,46 +64,26 @@ export function AnalyticsToolbar({ onFilterChange, filters }: AnalyticsToolbarPr
 
             <div className="flex flex-wrap items-center gap-3">
                 {/* Campaign Filter */}
-                <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-1 shadow-sm">
-                    <Filter className="h-4 w-4 text-slate-400" />
-                    <Select
-                        value={filters.campaignId || "all"}
-                        onValueChange={handleCampaignChange}
-                    >
-                        <SelectTrigger className="border-none shadow-none focus:ring-0 w-[160px] h-8 p-0">
-                            <SelectValue placeholder="All Campaigns" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Campaigns</SelectItem>
-                            {campaignsData?.data?.map((campaign) => (
-                                <SelectItem key={campaign.id} value={campaign.id}>
-                                    {campaign.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
+                <AnalyticsFacetedFilter
+                    title="Campaigns"
+                    options={campaignsData?.data?.map((campaign) => ({
+                        label: campaign.name,
+                        value: campaign.id,
+                    })) || []}
+                    selectedValues={Array.isArray(filters.campaignId) ? filters.campaignId : (filters.campaignId ? [filters.campaignId] : [])}
+                    onValuesChange={handleCampaignChange}
+                />
 
                 {/* Constituency Filter */}
-                <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-1 shadow-sm">
-                    <Filter className="h-4 w-4 text-slate-400" />
-                    <Select
-                        value={filters.constituencyId || "all"}
-                        onValueChange={handleConstituencyChange}
-                    >
-                        <SelectTrigger className="border-none shadow-none focus:ring-0 w-[160px] h-8 p-0">
-                            <SelectValue placeholder="All Constituencies" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Constituencies</SelectItem>
-                            {constituenciesData?.data?.map((c) => (
-                                <SelectItem key={c.id} value={c.id}>
-                                    {c.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
+                <AnalyticsFacetedFilter
+                    title="Constituencies"
+                    options={constituenciesData?.data?.map((c) => ({
+                        label: c.name,
+                        value: c.id,
+                    })) || []}
+                    selectedValues={Array.isArray(filters.constituencyId) ? filters.constituencyId : (filters.constituencyId ? [filters.constituencyId] : [])}
+                    onValuesChange={handleConstituencyChange}
+                />
 
                 {/* Date Filter */}
                 <div className={cn("grid gap-2")}>

@@ -17,7 +17,7 @@ export type UpdateUserDto = Partial<Omit<CreateUserDto, 'password'>>;
 import { PaginationParams } from "./pagination";
 
 export interface UsersFilterParams extends PaginationParams {
-    role?: UserRole;
+    role?: UserRole | UserRole[];
     isActive?: boolean;
 }
 

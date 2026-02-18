@@ -11,14 +11,14 @@ export interface CreateDonationDto extends Record<string, unknown> {
 }
 
 export interface DonationsFilterParams extends PaginationParams {
-    donorId?: string;
-    campaignId?: string;
-    causeId?: string;
+    donorId?: string | string[];
+    campaignId?: string | string[];
+    causeId?: string | string[];
     minAmount?: number;
     maxAmount?: number;
     startDate?: string;
     endDate?: string;
-    paymentMethod?: string;
+    paymentMethod?: string | string[];
 }
 export interface DonationResponseDto {
     id: string;

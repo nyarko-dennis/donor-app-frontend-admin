@@ -40,8 +40,8 @@ export interface RetentionStats {
 export interface AnalyticsFilters {
     startDate?: string;
     endDate?: string;
-    campaignId?: string;
-    constituencyId?: string;
+    campaignId?: string | string[];
+    constituencyId?: string | string[];
 }
 
 export const ANALYTICS_ENDPOINTS = {
