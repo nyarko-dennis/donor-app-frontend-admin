@@ -8,6 +8,7 @@ export const donationSchema = z.object({
     donation_cause: z.string().min(1, "Donation cause is required"),
     donorId: z.string().min(1, "Donor is required"),
     campaignId: z.string().min(1, "Campaign is required"),
+    donation_date: z.string().optional(),
 })
 
 export type DonationFormValues = z.infer<typeof donationSchema>

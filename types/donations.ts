@@ -8,6 +8,7 @@ export interface CreateDonationDto extends Record<string, unknown> {
     notes?: string;
     status: string;
     created_at: Date | string;
+    donation_date?: string;
 }
 
 export interface DonationsFilterParams extends PaginationParams {

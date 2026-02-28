@@ -44,7 +44,7 @@ export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<Don
     ),
     createTextColumn<DonationResponseDto>("payment_method", "Payment Method", (row) => row.payment_method),
     createTextColumn<DonationResponseDto>("donation_cause", "Cause", (row) => row.donation_cause),
-    createDateColumn<DonationResponseDto>("created_at", "Date", (row) => row.created_at, { dateStyle: "medium", timeStyle: "short" }),
+    createDateColumn<DonationResponseDto>("donation_date", "Date", (row) => row.donation_date || row.created_at, { dateStyle: "medium", timeStyle: "short" }),
     createActionsColumn<DonationResponseDto>(
         undefined,
         undefined,

@@ -57,6 +57,7 @@ const wizardSchema = z.object({
     }),
     donation_cause: z.string().min(1, "Donation cause is required"),
     campaignId: z.string().min(1, "Campaign is required"),
+    donation_date: z.string().optional(),
 
     // Step 2 fields
     isNewDonor: z.boolean(),
@@ -108,6 +109,7 @@ interface WizardValues {
     payment_method: "Cash" | "In Kind"
     donation_cause: string
     campaignId: string
+    donation_date?: string
     isNewDonor: boolean
     donorId?: string
     first_name?: string
@@ -175,6 +177,7 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
             payment_method: "Cash",
             donation_cause: "",
             campaignId: "",
+            donation_date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
             isNewDonor: false,
             donorId: "",
             first_name: "",
@@ -199,6 +202,9 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
                 payment_method: donationData.payment_method as "Cash" | "In Kind",
                 donation_cause: donationData.donation_cause,
                 campaignId: donationData.campaign?.id,
+                donation_date: donationData.donation_date
+                    ? new Date(new Date(donationData.donation_date).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+                    : new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
                 isNewDonor: false,
                 donorId: donationData.donor?.id,
             });
@@ -251,6 +257,12 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
                 return
             }
 
+            // Handle donation date appropriately based on payment method
+            const isManualPayment = data.payment_method === "Cash" || data.payment_method === "In Kind";
+            const processedDonationDate = isManualPayment && data.donation_date
+                ? new Date(data.donation_date).toISOString()
+                : undefined;
+
             if (isEditing) {
                 await updateDonationMutation.mutateAsync({
                     id: donationId!,
@@ -260,6 +272,7 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
                         payment_method: data.payment_method,
                         donation_cause: data.donation_cause,
                         campaignId: data.campaignId,
+                        ...(processedDonationDate && { donation_date: processedDonationDate }),
                     }
                 })
                 toast.success("Donation updated successfully")
@@ -271,6 +284,7 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
                     payment_method: data.payment_method,
                     donation_cause: data.donation_cause,
                     campaignId: data.campaignId,
+                    ...(processedDonationDate && { donation_date: processedDonationDate }),
                     donorId: donorId,
                     status: "completed",
                     transaction_id: `TXN-${Date.now()}`,
@@ -399,6 +413,24 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
                                                             <FieldError errors={[errors.payment_method]} />
                                                         </Field>
                                                     </div>
+
+                                                    {/* Date Picker, visible conditionally if payment_method is Cash/In Kind */}
+                                                    {(watch("payment_method") === "Cash" || watch("payment_method") === "In Kind") && (
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                                                            <Field>
+                                                                <FieldLabel htmlFor="donation_date">Donation Date & Time</FieldLabel>
+                                                                <FieldContent>
+                                                                    <Input
+                                                                        id="donation_date"
+                                                                        type="datetime-local"
+                                                                        {...register("donation_date")}
+                                                                        className="h-11"
+                                                                    />
+                                                                </FieldContent>
+                                                                <FieldError errors={[errors.donation_date]} />
+                                                            </Field>
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 <div className="space-y-4">
