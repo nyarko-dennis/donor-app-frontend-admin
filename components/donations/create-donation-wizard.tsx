@@ -35,7 +35,7 @@ import { cn } from "@/lib/utils"
 // Data hooks
 import { useDonationCauses } from "@/lib/query/hooks/useDonationCauses"
 import { useCampaigns } from "@/lib/query/hooks/useCampaigns"
-import { useDonors } from "@/lib/query/hooks/useDonors"
+import { useInfiniteDonors } from "@/lib/query/hooks/useDonors"
 import { useConstituencies } from "@/lib/query/hooks/useConstituencies"
 import { useSubConstituencies } from "@/lib/query/hooks/useSubConstituencies"
 import { useCreateDonationMutation } from "@/lib/query/mutations/useDonationMutations"
@@ -145,11 +145,19 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
     // Data Fetching
     const { data: interactionCausesData, isLoading: isLoadingCauses } = useDonationCauses()
     const { data: campaignsPage, isLoading: isLoadingCampaigns } = useCampaigns({ page: 1, take: 100 } as PaginationParams)
-    const { data: donorsPage, isLoading: isLoadingDonors } = useDonors({
-        page: 1,
+
+    // Use Infinite Donors
+    const {
+        data: donorsInfiniteData,
+        isLoading: isLoadingDonors,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage
+    } = useInfiniteDonors({
         take: 20,
         search: debouncedDonorSearch
     } as PaginationParams)
+
     const { data: constituenciesPage, isLoading: isLoadingConstituencies } = useConstituencies({ page: 1, take: 100 } as PaginationParams)
     const { data: subConstituenciesPage, isLoading: isLoadingSubConstituencies } = useSubConstituencies({ page: 1, take: 100 } as PaginationParams)
 
@@ -157,7 +165,12 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
         ? interactionCausesData
         : (interactionCausesData as any)?.data || []
     const campaigns = campaignsPage?.data || []
-    const donors = donorsPage?.data || []
+
+    // Flatten donors from all pages
+    const donors = useMemo(() => {
+        return donorsInfiniteData?.pages.flatMap(page => page.data) || []
+    }, [donorsInfiniteData])
+
     const constituencies = constituenciesPage?.data || []
     const allSubConstituencies = subConstituenciesPage?.data || []
 
@@ -577,6 +590,27 @@ export function CreateDonationWizard({ donationId }: { donationId?: string }) {
                                                                                         </ComboboxItem>
                                                                                     )
                                                                                 })
+                                                                            )}
+                                                                            {hasNextPage && (
+                                                                                <div className="p-2 border-t flex justify-center mt-2">
+                                                                                    <Button
+                                                                                        type="button"
+                                                                                        variant="ghost"
+                                                                                        size="sm"
+                                                                                        className="w-full text-xs hover:bg-muted"
+                                                                                        onClick={(e) => {
+                                                                                            e.preventDefault();
+                                                                                            e.stopPropagation();
+                                                                                            fetchNextPage();
+                                                                                        }}
+                                                                                        disabled={isFetchingNextPage}
+                                                                                    >
+                                                                                        {isFetchingNextPage ? (
+                                                                                            <Loader2 className="animate-spin w-3 h-3 mr-2" />
+                                                                                        ) : null}
+                                                                                        Load More Donors
+                                                                                    </Button>
+                                                                                </div>
                                                                             )}
                                                                         </ComboboxList>
                                                                     </ComboboxContent>
